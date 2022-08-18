@@ -61,24 +61,20 @@ public class GoalActivity extends AppCompatActivity {
 
         String goalName, startDate;
         int wordGoal, daysGoal;
-        Boolean reoccuring;
+        Boolean reoccurring;
 
+        // get values submitted in form
         goalName = ((TextView)findViewById(R.id.goalName)).getText().toString();
         wordGoal = Integer.parseInt(((TextView)findViewById(R.id.wordGoal)).getText().toString());
         daysGoal = Integer.parseInt(((TextView)findViewById(R.id.daysGoal)).getText().toString());
         startDate = ((TextView)findViewById(R.id.startDate)).getText().toString();
-        reoccuring = ((Switch)findViewById(R.id.reoccuring)).isChecked();
+        reoccurring = ((Switch)findViewById(R.id.reoccuring)).isChecked();
 
 
+        // insert data into database - goalsTable
+        Boolean checkInsertData = DB.insertGoalData(goalName, wordGoal, daysGoal, startDate, reoccurring);
 
-
-        Log.d("editgoal", String.valueOf(wordGoal));
-        Log.d("editgoal", String.valueOf(daysGoal));
-        Log.d("editgoal", String.valueOf(startDate));
-        Log.d("editgoal", String.valueOf(reoccuring));
-
-
-        Boolean checkInsertData = DB.insertGoalData(goalName, wordGoal, daysGoal, startDate, reoccuring);
+        // check if insert worked - don't know if this works
         if (checkInsertData==true) {
             Toast.makeText(GoalActivity.this, "New Entry Inserted", Toast.LENGTH_LONG).show();
             Log.d("entryinserted", "success");
@@ -87,6 +83,7 @@ public class GoalActivity extends AppCompatActivity {
             Log.d("entryinserted", "fail");
         }
 
+        // switch to main activity
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
     }

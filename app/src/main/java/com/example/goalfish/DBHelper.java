@@ -20,21 +20,22 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase DB) {
+        // create tables
         DB.execSQL("create Table wordLogs(id INTEGER primary key AUTOINCREMENT NOT NULL, date TEXT NOT NULL, words INTEGER NOT NULL, cumulative INTEGER NOT NULL, goal_id TEXT NOT NULL, FOREIGN KEY(goal_id) REFERENCES goalsTable(goalName))");
         DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, startDate TEXT, reoccurring BOOL)");
 
+        // get current date as string - might need to do something about making this work all the time
         LocalDate myDateObj = LocalDate.now();
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         String formattedDate = myDateObj.format(myFormatObj);
 
+        // give starting values for both tables so they're not empty
         ContentValues contentValues = new ContentValues();
         contentValues.put("date", formattedDate);
         contentValues.put("words", 0);
         contentValues.put("cumulative", 0);
         contentValues.put("goal_id", "Default Goal");
         long r = DB.insert("wordLogs", null, contentValues);
-
-        //insertLogsData(formattedDate, 0,0);
 
         ContentValues contentValues2 = new ContentValues();
         contentValues2.put("goalName", "Default Goal");
@@ -44,8 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues2.put("reoccurring", true);
         long r2 = DB.insert("goalsTable", null, contentValues2);
 
-        //insertGoalData("Default Goal", 500, 1, formattedDate, true);
-
+        // insertlogsdata won't work here - calls database recursively
 
 
     }
@@ -80,7 +80,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("reoccurring", reoccurring);
         long result = DB.insert("goalsTable", null, contentValues);
 
-
+        // get current date as string
         LocalDate myDateObj = LocalDate.now();
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         String formattedDate = myDateObj.format(myFormatObj);
@@ -101,13 +101,20 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     public Boolean deleteWords(String goalName){
-        // delete the last record entered into wordLogs
+        // delete the last record entered into wordLogs based on a goal
         SQLiteDatabase DB = this.getWritableDatabase();
 
+        // check there are more than one entries before deleting
+        Cursor cursor1 = DB.rawQuery("Select * from wordLogs where goal_id=?", new String[] {goalName});
+        int logsNum = cursor1.getCount();
+        cursor1.close();
+
+        // query most recent entry with specified goal
         Cursor cursor = DB.rawQuery("Select * from wordLogs where goal_id=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
         cursor.moveToFirst();
-        int id = cursor.getInt(0);
-        if (id != 0) {
+        int id = cursor.getInt(0); // gets id of record so we know what to delete
+        cursor.close();
+        if (logsNum != 1) { // don't delete first value
             long result = DB.delete("wordLogs", "id=?", new String[]{String.valueOf(id)});
             if (result == -1) {
                 return false;
@@ -126,7 +133,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getSpecificData (String goalName) {
-        // return a cursor of all records in wordLogs descending, includes null record at end
+        // return a cursor of all records in wordLogs descending, includes null record at end, specific to a goal
         SQLiteDatabase DB = this.getWritableDatabase();
         Cursor cursor = DB.rawQuery("Select * from wordLogs where goal_id=? ORDER BY id DESC", new String[] {goalName});
         return cursor;
@@ -147,7 +154,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         int c = cursor.getInt(3);
-        Log.d("cumulative", String.valueOf(c));
+        //Log.d("cumulative", String.valueOf(c));
         //int cum = Integer.parseInt(c);
         return c;
     }
@@ -165,11 +172,12 @@ public class DBHelper extends SQLiteOpenHelper {
         dict.put("Start Date", cursor.getString(4));
         dict.put("Reoccurring", cursor.getInt(5));
 
-//        int c = cursor.getInt(2);
-//        Log.d("goalNum", String.valueOf(c));
-        //int cum = Integer.parseInt(c);
         return dict;
     }
+
+
+    // unused methods ////////////
+
 
     @Override
     public void onUpgrade(SQLiteDatabase DB, int i, int i1) {

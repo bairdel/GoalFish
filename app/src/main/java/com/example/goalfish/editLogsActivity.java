@@ -34,7 +34,6 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         currentGoal = "Default Goal";
 
         // getting current goal
-
         Cursor res2 = DB.getGoals();
         int rows2 = res2.getCount() + 1; // number of rows to get
         String[] goalNames1 = new String[rows2]; // new string array of length items found
@@ -47,9 +46,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         Log.d("dataArray", Arrays.toString(goalNames));
 
         spinnerGoal = findViewById(R.id.logsDropdown);
-
         spinnerGoal.setOnItemSelectedListener(this);
-
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
@@ -58,12 +55,12 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
     }
 
     public void refreshLogs(){
+        // update the data in table based on currentGoal
         TableView tableView = findViewById(R.id.table_data_view);
         String[] headers={"Date", "Words", "Total"};
 
 
         // getting words written
-
         Log.d("current goal", currentGoal);
         Cursor res = DB.getSpecificData(currentGoal);
         int rows = res.getCount() + 1;
@@ -83,12 +80,13 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             j += 1;
         }
         String[][] newData = Arrays.copyOf(data, data.length - 1);
-        Log.d("dataArray", Arrays.toString(newData[0]));
+        // add data to table
         tableView.setHeaderAdapter(new SimpleTableHeaderAdapter(this, headers));
         tableView.setDataAdapter(new SimpleTableDataAdapter(this, newData));
     }
 
     public void deleteEntry(View v){
+        // delete last log for selected goal on button click
         Boolean checkDeleteData = DB.deleteWords(currentGoal);
         if (checkDeleteData==true) {
             Toast.makeText(editLogsActivity.this, "Entry Deleted", Toast.LENGTH_LONG).show();
@@ -98,6 +96,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             Log.d("entryinserted", "fail");
         }
 
+        // refresh page
         Intent i = getIntent();
         finish();
         startActivity(i);
@@ -110,7 +109,6 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             String valueFromSpinner = adapterView.getItemAtPosition(position).toString();
 
             currentGoal = valueFromSpinner;
-            Log.d("current goal", currentGoal);
             refreshLogs();
         }
     }
@@ -122,7 +120,6 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             cursor.moveToFirst();
             String name = cursor.getString(1);
             currentGoal = name;
-            Log.d("current goal", currentGoal);
             refreshLogs();
         }
     }

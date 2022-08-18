@@ -31,22 +31,19 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
 
         DB = new DBHelper(this);
 
-
+        // create the dropdown menu with the list of goals
         Cursor res = DB.getGoals();
         int rows = res.getCount() + 1;
         String[] goalNames1 = new String[rows];
         int i = 0;
-        while(res.moveToNext()){
+        while(res.moveToNext()){ // add goals to a list
             goalNames1[i] = res.getString(1);
             i += 1;
         }
-        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1);
-        Log.d("dataArray", Arrays.toString(goalNames));
+        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1); // last item is null for some reason
 
         spinnerGoal = findViewById(R.id.goalSelectorWords);
-
         spinnerGoal.setOnItemSelectedListener(this);
-
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
@@ -54,25 +51,25 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
     }
 
     public void submitWords(View v){
+        // submit new words written to db - when button pressed
+
+        // get submitted value
         TextView textView = findViewById(R.id.newWords);
         String s = textView.getText().toString();
-//        Log.d("newWords", s);
-
         int t = Integer.parseInt(s);
 
+        // get current date as string
         LocalDate myDateObj = LocalDate.now();
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = myDateObj.format(myFormatObj);
 
         int cum;
-        cum = DB.getCum(currentGoal) + t;
+        cum = DB.getCum(currentGoal) + t; // update cumulative total
 
-        Log.d("editgoal", String.valueOf(formattedDate));
-        Log.d("editgoal", String.valueOf(t));
-        Log.d("editgoal", String.valueOf(cum));
-        Log.d("editgoal", String.valueOf(currentGoal));
-
+        // insert data into wordLogs table
         Boolean checkInsertData = DB.insertLogsData(formattedDate, t, cum, currentGoal);
+
+        // check if inserted - might not work
         if (checkInsertData==true) {
             Toast.makeText(AddWordsActivity.this, "New Entry Inserted", Toast.LENGTH_SHORT).show();
             Log.d("entryinserted", "success");
@@ -81,6 +78,7 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
             Log.d("entryinserted", "fail");
         }
 
+        // return to main activity
         Intent i = new Intent(this, MainActivity.class);
 //        i.putExtra("newWords", s);
         startActivity(i);
@@ -88,23 +86,23 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+        // change associated goal when dropdown changes
         if (adapterView.getId() == R.id.goalSelectorWords) {
             String valueFromSpinner = adapterView.getItemAtPosition(position).toString();
 
             currentGoal = valueFromSpinner;
-            Log.d("current goal", currentGoal);
         }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
+        // default to most recently added goal if user does not select anything
         if (adapterView.getId() == R.id.goalSelectorWords) {
             Cursor cursor = DB.getGoals();
             cursor.moveToFirst();
             String name = cursor.getString(1);
             Log.d("default selection", name);
             currentGoal = name;
-            Log.d("current goal", currentGoal);
         }
     }
 }
