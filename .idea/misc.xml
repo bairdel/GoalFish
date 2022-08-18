@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/activity_add_words.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/activity_edit_logs.xml" value="0.4193877551020408" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/activity_goal.xml" value="0.3056861906797777" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/activity_main.xml" value="0.4728835978835979" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/content_goal.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/fragment_add_words.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/fragment_first.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/fragment_second.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/layout/progress_widget.xml" value="0.536" />
+        <entry key="..\:/Users/becks/AndroidStudioProjects/GoalFish/app/src/main/res/xml/appwidget_info.xml" value="0.3056861906797777" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8 (6)" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

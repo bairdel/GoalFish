@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">GoalFish</string>
+    <string name="currWordCount">0</string>
+    <string name="goalWordCount">0</string>
+    <string name="title_activity_goal">Edit Goal</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+</resources>
