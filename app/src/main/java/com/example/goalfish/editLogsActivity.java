@@ -2,6 +2,8 @@ package com.example.goalfish;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -86,37 +88,79 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
     }
 
     public void deleteEntry(View v){
-        // delete last log for selected goal on button click
-        Boolean checkDeleteData = DB.deleteWords(currentGoal);
-        if (checkDeleteData==true) {
-            Toast.makeText(editLogsActivity.this, "Entry Deleted", Toast.LENGTH_LONG).show();
-            Log.d("entryinserted", "success");
-        }else{
-            Toast.makeText(editLogsActivity.this, "Entry Not Deleted", Toast.LENGTH_LONG).show();
-            Log.d("entryinserted", "fail");
-        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirm Delete");
+        builder.setMessage("Are you sure?");
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // continue with delete
 
-        // refresh page
-        Intent i = getIntent();
-        finish();
-        startActivity(i);
+                // delete last log for selected goal on button click
+                Boolean checkDeleteData = DB.deleteWords(currentGoal);
+                if (checkDeleteData==true) {
+                    Toast.makeText(editLogsActivity.this, "Entry Deleted", Toast.LENGTH_LONG).show();
+                    Log.d("entryinserted", "success");
+                }else{
+                    Toast.makeText(editLogsActivity.this, "Entry Not Deleted", Toast.LENGTH_LONG).show();
+                    Log.d("entryinserted", "fail");
+                }
+
+                // refresh page
+                Intent i = getIntent();
+                finish();
+                startActivity(i);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // do nothing
+
+
+            }
+        });
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.show();
+
+
+
     }
 
     public void deleteGoal(View v){
-        // delete last log for selected goal on button click
-        Boolean checkDeleteData = DB.deleteGoal(currentGoal);
-        if (checkDeleteData==true) {
-            Toast.makeText(editLogsActivity.this, "Goal Deleted", Toast.LENGTH_LONG).show();
-            Log.d("entryinserted", "success");
-        }else{
-            Toast.makeText(editLogsActivity.this, "Goal Not Deleted", Toast.LENGTH_LONG).show();
-            Log.d("entryinserted", "fail");
-        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirm Delete");
+        builder.setMessage("Are you sure?");
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // continue with delete
 
-        // refresh page
-        Intent i = getIntent();
-        finish();
-        startActivity(i);
+                // delete last log for selected goal on button click
+                Boolean checkDeleteData = DB.deleteGoal(currentGoal);
+                if (checkDeleteData==true) {
+                    Toast.makeText(editLogsActivity.this, "Goal Deleted", Toast.LENGTH_LONG).show();
+                    Log.d("entryinserted", "success");
+                }else{
+                    Toast.makeText(editLogsActivity.this, "Goal Not Deleted", Toast.LENGTH_LONG).show();
+                    Log.d("entryinserted", "fail");
+                }
+
+                // refresh page
+                Intent i = getIntent();
+                finish();
+                startActivity(i);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // do nothing
+
+
+            }
+        });
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.show();
+
+
+
     }
 
 

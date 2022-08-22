@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,26 +44,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             goalNames1[i] = res.getString(1);
             i += 1;
         }
+
         String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1);
-
         spinnerGoal = findViewById(R.id.goalSelector);
-
         spinnerGoal.setOnItemSelectedListener(this);
-
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
 
 
 
-        // set the numbers to something - this might be unnecessary
-        TextView t = (TextView) findViewById(R.id.currWordCount);
-        String c = (String.valueOf(DB.getCum("Default Goal")));
-        t.setText(c);
+        updateHome("Default Goal");
+//        // set the numbers to something - this might be unnecessary
+//        TextView t = (TextView) findViewById(R.id.currWordCount);
+//        String c = (String.valueOf(DB.getCum("Default Goal")));
+//        t.setText(c);
+//
+//        TextView t2 = (TextView) findViewById(R.id.goalWordCount);
+//        String c2 = (String.valueOf(DB.getGoal("Default Goal").get("Goal")));
+//        t2.setText(c2);
 
-        TextView t2 = (TextView) findViewById(R.id.goalWordCount);
-        String c2 = (String.valueOf(DB.getGoal("Default Goal").get("Goal")));
-        t2.setText(c2);
     }
 
     public void editGoal(View v){
@@ -125,58 +126,77 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return answer;
     }
 
+    public void updateHome (String valueFromSpinner) {
+
+        TextView t = (TextView) findViewById(R.id.currWordCount);
+        String c = (String.valueOf(DB.getCum(valueFromSpinner)));
+        t.setText(c);
+
+        TextView t2 = (TextView) findViewById(R.id.goalWordCount);
+        String c2 = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
+        t2.setText(c2);
+
+        ProgressBar simpleProgressBar=(ProgressBar) findViewById(R.id.mainProgressBar); // initiate the progress bar
+        simpleProgressBar.setMax(Integer.parseInt(c2));
+        simpleProgressBar.setProgress(Integer.parseInt(c));
+
+        TextView daysLeft = (TextView) findViewById((R.id.daysLeft));
+        TextView finishDate = (TextView) findViewById((R.id.finishDate));
+
+        String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+        int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
+        int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
+
+        String result[] = calculateDates(startDate, period, reoccurring);
+
+        daysLeft.setText(result[0]);
+        finishDate.setText(result[1]);
+
+        if ((Integer.parseInt(result[0]) == period) && (DB.getLimitReached(valueFromSpinner) == 0)) {
+            // daysLeft = 0 and hasn't been updated today
+
+            // get current date as string
+            LocalDate myDateObj = LocalDate.now();
+            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String formattedDate = myDateObj.format(myFormatObj);
+
+            // insert data into wordLogs table
+            Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
+
+            // check if inserted - might not work
+            if (checkInsertData==true) {
+                Toast.makeText(MainActivity.this, "Word Count Updated", Toast.LENGTH_SHORT).show();
+                Log.d("entryinserted", "success");
+            }else{
+                Toast.makeText(MainActivity.this, "Goal Not Updated", Toast.LENGTH_SHORT).show();
+                Log.d("entryinserted", "fail");
+            }
+
+            DB.setLimitReached(valueFromSpinner, true);
+
+
+        } else if (Integer.parseInt(result[0]) != period) {
+            DB.setLimitReached(valueFromSpinner, false);
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // refresh page
+        Intent i = getIntent();
+        finish();
+        startActivity(i);    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         // update values when something is selected on the dropdown
         if (adapterView.getId() == R.id.goalSelector) {
             String valueFromSpinner = adapterView.getItemAtPosition(position).toString();
 
-            TextView t = (TextView) findViewById(R.id.currWordCount);
-            String c = (String.valueOf(DB.getCum(valueFromSpinner)));
-            t.setText(c);
-
-            TextView t2 = (TextView) findViewById(R.id.goalWordCount);
-            String c2 = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
-            t2.setText(c2);
-
-            TextView daysLeft = (TextView) findViewById((R.id.daysLeft));
-            TextView finishDate = (TextView) findViewById((R.id.finishDate));
-
-            String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
-            int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
-            int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
-
-            String result[] = calculateDates(startDate, period, reoccurring);
-
-            daysLeft.setText(result[0]);
-            finishDate.setText(result[1]);
-
-            if ((Integer.parseInt(result[0]) == period) && (DB.getLimitReached(valueFromSpinner) == 0)) {
-                // daysLeft = 0 and hasn't been updated today
-
-                // get current date as string
-                LocalDate myDateObj = LocalDate.now();
-                DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                String formattedDate = myDateObj.format(myFormatObj);
-
-                // insert data into wordLogs table
-                Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
-
-                // check if inserted - might not work
-                if (checkInsertData==true) {
-                    Toast.makeText(MainActivity.this, "Word Count Updated", Toast.LENGTH_SHORT).show();
-                    Log.d("entryinserted", "success");
-                }else{
-                    Toast.makeText(MainActivity.this, "Goal Not Updated", Toast.LENGTH_SHORT).show();
-                    Log.d("entryinserted", "fail");
-                }
-
-                DB.setLimitReached(valueFromSpinner, true);
+            updateHome(valueFromSpinner);
 
 
-            } else if (Integer.parseInt(result[0]) != period) {
-                DB.setLimitReached(valueFromSpinner, false);
-            }
 
         }
     }
@@ -188,12 +208,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         cursor.moveToFirst();
         String name = cursor.getString(1);
 
-        TextView t = (TextView) findViewById(R.id.currWordCount);
-        String c = (String.valueOf(DB.getCum(name)));
-        t.setText(c);
+        updateHome(name);
 
-        TextView t2 = (TextView) findViewById(R.id.goalWordCount);
-        String c2 = (String.valueOf(DB.getGoal(name).get("Goal")));
-        t2.setText(c2);
+        // refresh page
+        Intent i = getIntent();
+        finish();
+        startActivity(i);
+
+//        TextView t = (TextView) findViewById(R.id.currWordCount);
+//        String c = (String.valueOf(DB.getCum(name)));
+//        t.setText(c);
+//
+//        TextView t2 = (TextView) findViewById(R.id.goalWordCount);
+//        String c2 = (String.valueOf(DB.getGoal(name).get("Goal")));
+//        t2.setText(c2);
     }
 }
