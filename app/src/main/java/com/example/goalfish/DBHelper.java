@@ -22,7 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase DB) {
         // create tables
         DB.execSQL("create Table wordLogs(id INTEGER primary key AUTOINCREMENT NOT NULL, date TEXT NOT NULL, words INTEGER NOT NULL, cumulative INTEGER NOT NULL, goal_id TEXT NOT NULL, FOREIGN KEY(goal_id) REFERENCES goalsTable(goalName))");
-        DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, startDate TEXT, reoccurring BOOL)");
+        DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, startDate TEXT, reoccurring BOOL, limitReached BOOL)");
 
         // get current date as string - might need to do something about making this work all the time
         LocalDate myDateObj = LocalDate.now();
@@ -43,6 +43,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues2.put("period", 1);
         contentValues2.put("startDate", formattedDate);
         contentValues2.put("reoccurring", true);
+        contentValues2.put("limitReached", true);
         long r2 = DB.insert("goalsTable", null, contentValues2);
 
         // insertlogsdata won't work here - calls database recursively
@@ -78,6 +79,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("period", period);
         contentValues.put("startDate", startDate);
         contentValues.put("reoccurring", reoccurring);
+        contentValues.put("limitReached", false);
         long result = DB.insert("goalsTable", null, contentValues);
 
         // get current date as string
@@ -197,9 +199,40 @@ public class DBHelper extends SQLiteOpenHelper {
         dict.put("Period", cursor.getInt(3));
         dict.put("Start Date", cursor.getString(4));
         dict.put("Reoccurring", cursor.getInt(5));
+        dict.put("limitReached", cursor.getInt(6));
 
         return dict;
     }
+
+    public int getLimitReached(String goalName) {
+        // get the most recent cumulative value for the record with the requested goalName
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = DB.rawQuery("select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
+        cursor.moveToFirst();
+
+        int c = cursor.getInt(6);
+        //Log.d("cumulative", String.valueOf(c));
+        //int cum = Integer.parseInt(c);
+        return c;
+    }
+
+    public boolean setLimitReached(String goalName, boolean limitReached) {
+        // get the most recent cumulative value for the record with the requested goalName
+        SQLiteDatabase DB = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("limitReached", limitReached);
+
+        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
+        if (result == -1) {
+            return false;
+        } else {
+            return true;
+        }
+
+
+    }
+
 
 
     // unused methods ////////////

@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             int count;
             String mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, dateTime));
             base = dateTime;
-            while (Integer.parseInt(mid) < 0) {
+            while (Integer.parseInt(mid) <= 0) {
                 base = base.plusDays(period);
                 mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
             }
@@ -151,8 +151,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             daysLeft.setText(result[0]);
             finishDate.setText(result[1]);
 
-            if ((Integer.parseInt(result[0]) == 0) && (DB.getCum(valueFromSpinner) != 0)) {
-                // daysLeft = 0 and current cumulative for goal != 0
+            if ((Integer.parseInt(result[0]) == period) && (DB.getLimitReached(valueFromSpinner) == 0)) {
+                // daysLeft = 0 and hasn't been updated today
 
                 // get current date as string
                 LocalDate myDateObj = LocalDate.now();
@@ -171,7 +171,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     Log.d("entryinserted", "fail");
                 }
 
+                DB.setLimitReached(valueFromSpinner, true);
 
+
+            } else if (Integer.parseInt(result[0]) != period) {
+                DB.setLimitReached(valueFromSpinner, false);
             }
 
         }
