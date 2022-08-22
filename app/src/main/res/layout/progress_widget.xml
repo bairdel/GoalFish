@@ -5,39 +5,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:layout_width="100dp"
-        android:layout_height="35dp"
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true">
 
-        <TextView
-            android:id="@+id/widgetGoal"
-            android:layout_width="50dp"
-            android:layout_height="35dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerInParent="true"
-            android:gravity="center_horizontal"
-            android:text="@string/goalWordCount" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/widgetWord"
-            android:layout_width="50dp"
-            android:layout_height="35dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"
-            android:gravity="center_horizontal"
-            android:text="@string/currWordCount" />
+            <TextView
+                android:id="@+id/widgetGoal"
+                android:layout_width="50dp"
+                android:layout_height="35dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:gravity="center_horizontal"
+                android:text="@string/goalWordCount" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="100dp"
-            android:layout_height="10dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            <TextView
+                android:id="@+id/widgetWord"
+                android:layout_width="50dp"
+                android:layout_height="35dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:gravity="center_horizontal"
+                android:text="@string/currWordCount" />
+        </TableRow>
 
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    </RelativeLayout>
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="100dp"
+                android:layout_height="10dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </TableLayout>
 
     <Button
         android:id="@+id/widgetButton"
