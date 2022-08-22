@@ -2,7 +2,9 @@ package com.example.goalfish;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
@@ -56,6 +58,7 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
+
 
     }
 
@@ -113,8 +116,12 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
 
         //Initialize the elements of our window, install the handler
 
-//        TextView test2 = popupView.findViewById(R.id.titleText);
-//        test2.setText(R.string.textTitle);
+        SharedPreferences sharedpreferences = getSharedPreferences("com.example.goalfish.oldwords", Context.MODE_PRIVATE);
+        String oldWords = sharedpreferences.getString("oldWordCount", "");
+        EditText leftCount = popupView.findViewById(R.id.oldWordCount);
+        leftCount.setText(oldWords);
+
+
 
         Button buttonEdit = popupView.findViewById(R.id.messageButton);
         buttonEdit.setOnClickListener(new View.OnClickListener() {
@@ -125,7 +132,10 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
                 int oldWordCount = Integer.parseInt(((TextView)popupView.findViewById(R.id.oldWordCount)).getText().toString());
 
                 int newWords = newWordCount - oldWordCount;
-                Log.d("test", String.valueOf(newWords));
+
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString("oldWordCount", String.valueOf(newWordCount));
+                editor.commit();
 
                 EditText wordInput = findViewById(R.id.newWords);
                 wordInput.setText(String.valueOf(newWords));
@@ -135,22 +145,15 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
             }
         });
 
-
-
+        // close window when outside clicked
         popupView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-
                 //Close the window when clicked
                 popupWindow.dismiss();
                 return true;
             }
         });
-
-
-
-//        Intent i = new Intent(this, WordCalculator.class);
-//        startActivity(i);
     }
 
     @Override

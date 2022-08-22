@@ -2,7 +2,9 @@ package com.example.goalfish;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +27,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     DBHelper DB;
     private Spinner spinnerGoal;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
