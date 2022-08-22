@@ -26,7 +26,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         // get current date as string - might need to do something about making this work all the time
         LocalDate myDateObj = LocalDate.now();
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = myDateObj.format(myFormatObj);
 
         // give starting values for both tables so they're not empty
@@ -82,7 +82,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         // get current date as string
         LocalDate myDateObj = LocalDate.now();
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = myDateObj.format(myFormatObj);
 
         ContentValues contentValues2 = new ContentValues();
@@ -124,6 +124,32 @@ public class DBHelper extends SQLiteOpenHelper {
         }else{
             return false;
         }}
+
+    public Boolean deleteGoal(String goalName){
+        // delete the last record entered into goalsTable based on a goal
+        SQLiteDatabase DB = this.getWritableDatabase();
+
+        // check there are more than one entries before deleting
+        Cursor cursor1 = DB.rawQuery("Select * from goalsTable", null);
+        int logsNum = cursor1.getCount();
+        cursor1.close();
+
+        // query most recent entry with specified goal
+        Cursor cursor = DB.rawQuery("Select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
+        cursor.moveToFirst();
+        int id = cursor.getInt(0); // gets id of record so we know what to delete
+        cursor.close();
+        if (logsNum != 1) { // don't delete first value
+            long result = DB.delete("goalsTable", "id=?", new String[]{String.valueOf(id)});
+            if (result == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }else{
+            return false;
+        }}
+
 
     public Cursor getData () {
         // return a cursor of all records in wordLogs descending, includes null record at end

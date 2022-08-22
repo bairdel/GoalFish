@@ -102,6 +102,23 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         startActivity(i);
     }
 
+    public void deleteGoal(View v){
+        // delete last log for selected goal on button click
+        Boolean checkDeleteData = DB.deleteGoal(currentGoal);
+        if (checkDeleteData==true) {
+            Toast.makeText(editLogsActivity.this, "Goal Deleted", Toast.LENGTH_LONG).show();
+            Log.d("entryinserted", "success");
+        }else{
+            Toast.makeText(editLogsActivity.this, "Goal Not Deleted", Toast.LENGTH_LONG).show();
+            Log.d("entryinserted", "fail");
+        }
+
+        // refresh page
+        Intent i = getIntent();
+        finish();
+        startActivity(i);
+    }
+
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {

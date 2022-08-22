@@ -11,8 +11,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -77,6 +83,48 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         startActivity(i);
     }
 
+    public String[] calculateDates(String startDate, int period, int reoccurring){
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+        LocalDate dateTime = LocalDate.parse(startDate, formatter);
+
+        LocalDate currentDate = LocalDate.now();
+
+        //long daysBetween = ChronoUnit.DAYS.between(dateTime, currentDate); // date in future gives neg
+        String daysBetween = String.valueOf(ChronoUnit.DAYS.between(currentDate, dateTime)); // date in future gives pos
+
+        //Log.d("daysBetweeen", String.valueOf(daysBetween));
+        Log.d("daysBetweeen", String.valueOf(daysBetween));
+
+        String daysLeft;
+        String finishDate;
+        LocalDate base;
+        if (reoccurring == 1) {
+            int count;
+            String mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, dateTime));
+            base = dateTime;
+            while (Integer.parseInt(mid) < 0) {
+                base = base.plusDays(period);
+                mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
+            }
+            daysLeft = mid;
+            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            finishDate = base.format(myFormatObj);
+        } else {
+            daysLeft = daysBetween;
+            base = dateTime;
+            base = base.plusDays(period);
+            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            finishDate = base.format(myFormatObj);
+        }
+
+
+        String[] answer = new String[2];
+        answer[0] = daysLeft;
+        answer[1] = finishDate;
+        return answer;
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         // update values when something is selected on the dropdown
@@ -90,6 +138,42 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             TextView t2 = (TextView) findViewById(R.id.goalWordCount);
             String c2 = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
             t2.setText(c2);
+
+            TextView daysLeft = (TextView) findViewById((R.id.daysLeft));
+            TextView finishDate = (TextView) findViewById((R.id.finishDate));
+
+            String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+            int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
+            int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
+
+            String result[] = calculateDates(startDate, period, reoccurring);
+
+            daysLeft.setText(result[0]);
+            finishDate.setText(result[1]);
+
+            if ((Integer.parseInt(result[0]) == 0) && (DB.getCum(valueFromSpinner) != 0)) {
+                // daysLeft = 0 and current cumulative for goal != 0
+
+                // get current date as string
+                LocalDate myDateObj = LocalDate.now();
+                DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String formattedDate = myDateObj.format(myFormatObj);
+
+                // insert data into wordLogs table
+                Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
+
+                // check if inserted - might not work
+                if (checkInsertData==true) {
+                    Toast.makeText(MainActivity.this, "Word Count Updated", Toast.LENGTH_SHORT).show();
+                    Log.d("entryinserted", "success");
+                }else{
+                    Toast.makeText(MainActivity.this, "Goal Not Updated", Toast.LENGTH_SHORT).show();
+                    Log.d("entryinserted", "fail");
+                }
+
+
+            }
+
         }
     }
 

@@ -47,7 +47,12 @@ public class GoalActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int day) {
                         month = month+1;
-                        String date = year+"/"+month+"/"+day;
+                        String date;
+                        if (month < 10){
+                            date = year + "-0" + month + "-" + day;
+                        } else {
+                            date = year + "-" + month + "-" + day;
+                        }
                         startDate.setText(date);
                     }
                 },year,month,day);
