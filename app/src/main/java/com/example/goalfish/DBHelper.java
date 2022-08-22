@@ -239,10 +239,33 @@ public class DBHelper extends SQLiteOpenHelper {
         } else {
             return true;
         }
-
-
     }
 
+    public boolean changeGoalName(String goalName, String newName) {
+        // get the most recent cumulative value for the record with the requested goalName
+        SQLiteDatabase DB = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("goalName", newName);
+
+        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
+        if (result == -1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public boolean checkGoalUsed (String goalName) {
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = DB.rawQuery("Select * from goalsTable ORDER BY id ASC", null);
+
+        while (cursor.moveToNext()) {
+            if (cursor.getString(1).equals(goalName)) {
+                return true;
+            }
+        } return false;
+    }
 
 
     // unused methods ////////////

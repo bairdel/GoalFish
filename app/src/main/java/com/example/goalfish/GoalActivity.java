@@ -31,6 +31,23 @@ public class GoalActivity extends AppCompatActivity {
 
         DB = new DBHelper(this);
 
+        // change name to something not taken
+        EditText goalName = findViewById(R.id.goalName);
+        String defaultGoal = "Goal";
+        String baseGoal = "Goal";
+        int count = 1;
+        boolean goalUsed = DB.checkGoalUsed(defaultGoal);
+        while (goalUsed == true) {
+
+            defaultGoal = baseGoal + String.valueOf(count);
+            count += 1;
+            goalUsed = DB.checkGoalUsed(defaultGoal);
+        }
+
+        goalName.setText(defaultGoal);
+
+
+
         EditText startDate;
         DatePickerDialog.OnDateSetListener setListener;
         startDate = (findViewById(R.id.startDate));
@@ -81,10 +98,10 @@ public class GoalActivity extends AppCompatActivity {
 
         // check if insert worked - don't know if this works
         if (checkInsertData==true) {
-            Toast.makeText(GoalActivity.this, "New Entry Inserted", Toast.LENGTH_LONG).show();
+            Toast.makeText(GoalActivity.this, "New Goal Created", Toast.LENGTH_LONG).show();
             Log.d("entryinserted", "success");
         }else{
-            Toast.makeText(GoalActivity.this, "Entry Not Inserted", Toast.LENGTH_LONG).show();
+            Toast.makeText(GoalActivity.this, "Goal Already Exists", Toast.LENGTH_LONG).show();
             Log.d("entryinserted", "fail");
         }
 

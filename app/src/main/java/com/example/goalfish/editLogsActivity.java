@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -121,8 +122,6 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.show();
 
-
-
     }
 
     public void deleteGoal(View v){
@@ -159,10 +158,49 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.show();
 
+    }
+
+    public void changeName(View v) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Change Goal Name");
+        alert.setMessage("New Name: ");
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String newName = input.getText().toString();
+
+                Boolean checkChangeName = DB.changeGoalName(currentGoal, newName);
+                if (checkChangeName == true) {
+                    Toast.makeText(editLogsActivity.this, "Goal Changed", Toast.LENGTH_LONG).show();
+                    Log.d("entryinserted", "success");
+                } else {
+                    Toast.makeText(editLogsActivity.this, "Goal Not Changed", Toast.LENGTH_LONG).show();
+                    Log.d("entryinserted", "fail");
+                }
+                // refresh page
+                Intent i = getIntent();
+                finish();
+                startActivity(i);
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        alert.show();
+
+
 
 
     }
-
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
