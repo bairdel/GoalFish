@@ -25,7 +25,7 @@
         <activity
             android:name=".GoalActivity"
             android:exported="false"
-            android:label="@string/title_activity_goal"
+            android:label="Add Goal"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".MainActivity"

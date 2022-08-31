@@ -5,6 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/widgetButton"
+        android:layout_width="wrap_content"
+        android:layout_height="68dp"
+        android:layout_centerInParent="true"
+        android:width="100dp"
+        android:height="40dp"
+        android:background="#72FF6F00"
+        android:stateListAnimator="@null"
+        android:visibility="visible"
+
+        tools:visibility="visible" />
+
     <LinearLayout
         android:layout_width="100dp"
         android:layout_height="wrap_content"
@@ -41,15 +54,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="100dp"
             android:layout_height="match_parent" />
-    </LinearLayout>
 
-    <Button
-        android:id="@+id/widgetButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:width="100dp"
-        android:height="35dp"
-        android:background="#FD9F6D" />
+    </LinearLayout>
 
 </RelativeLayout>
