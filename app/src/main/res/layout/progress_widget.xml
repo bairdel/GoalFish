@@ -32,12 +32,14 @@
             <TextView
                 android:id="@+id/widgetWord"
                 android:layout_width="50dp"
-                android:layout_height="35dp"
+                android:layout_height="34dp"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:autoText="false"
-                android:gravity="center_horizontal"
-                android:text="@string/currWordCount" />
+                android:gravity="center"
+                android:text="@string/currWordCount"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/widgetGoal"
@@ -45,15 +47,17 @@
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:gravity="center_horizontal"
-                android:text="@string/goalWordCount" />
+                android:gravity="center"
+                android:text="@string/goalWordCount"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="100dp"
-            android:layout_height="match_parent" />
+            android:layout_width="match_parent"
+            android:layout_height="28dp" />
 
     </LinearLayout>
 

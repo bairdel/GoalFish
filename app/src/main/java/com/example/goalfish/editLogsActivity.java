@@ -7,16 +7,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import de.codecrafters.tableview.TableView;
 import de.codecrafters.tableview.toolkit.SimpleTableDataAdapter;
@@ -163,18 +170,78 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
     public void changeName(View v) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-        alert.setTitle("Change Goal Name");
-        alert.setMessage("New Name: ");
+        alert.setTitle("Edit Goal");
 
         // Set an EditText view to get user input
-        final EditText input = new EditText(this);
-        alert.setView(input);
+//        final EditText input = new EditText(this);
+//        alert.setView(input);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(20,20,20, 20);
+
+        final TextView goalNameMessage = new TextView(this);
+        goalNameMessage.setText("Goal Name: ");
+        layout.addView(goalNameMessage);
+
+        final EditText goalName = new EditText(this);
+        goalName.setHint("Goal Name");
+        goalName.setText((String) DB.getGoal(currentGoal).get("Goal Name"));
+        layout.addView(goalName);
+
+        final TextView wordGoalMessage = new TextView(this);
+        wordGoalMessage.setText("Word Goal: ");
+        layout.addView(wordGoalMessage);
+
+        final EditText wordGoal = new EditText(this);
+        wordGoal.setHint("Words Goal");
+        wordGoal.setText(String.valueOf((int) DB.getGoal(currentGoal).get("Goal")));
+        wordGoal.setInputType(InputType.TYPE_CLASS_NUMBER);
+        layout.addView(wordGoal);
+
+        final TextView periodMessage = new TextView(this);
+        periodMessage.setText("Period of Time: ");
+        layout.addView(periodMessage);
+
+        final EditText period = new EditText(this);
+        period.setHint("Period");
+        period.setText(String.valueOf((int) DB.getGoal(currentGoal).get("Period")));
+        period.setInputType(InputType.TYPE_CLASS_NUMBER);
+        layout.addView(period);
+
+        final TextView reoccurringMessage = new TextView(this);
+        reoccurringMessage.setText("Reoccurring: ");
+        layout.addView(reoccurringMessage);
+
+        final Switch reoccurring = new Switch(this);
+        int checkValue = (int) DB.getGoal(currentGoal).get("Reoccurring");
+        if (checkValue == 0) {
+            reoccurring.setChecked(false);
+        } else {
+            reoccurring.setChecked(true);
+        }
+        reoccurring.setGravity(Gravity.LEFT);
+        layout.addView(reoccurring);
+
+//        final EditText wordGoal = new EditText(this);
+//        wordGoal.setHint("Words Goal");
+//        layout.addView(wordGoal);
+
+        alert.setView(layout); // Again this is a set method, not add
+
+
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String newName = input.getText().toString();
+//                String newName = input.getText().toString();
+                Dictionary dict = new Hashtable();
+                dict.put("Goal Name", goalName.getText().toString());
+                dict.put("Goal", Integer.parseInt(wordGoal.getText().toString()));
+                dict.put("Period", Integer.parseInt(period.getText().toString()));
+//                dict.put("Start Date", );
+                dict.put("Reoccurring", reoccurring.isChecked());
 
-                Boolean checkChangeName = DB.changeGoalName(currentGoal, newName);
+                Boolean checkChangeName = DB.changeGoalName(currentGoal, dict);
                 if (checkChangeName == true) {
                     Toast.makeText(editLogsActivity.this, "Goal Changed", Toast.LENGTH_LONG).show();
                     Log.d("entryinserted", "success");

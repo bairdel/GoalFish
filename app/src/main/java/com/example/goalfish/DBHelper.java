@@ -241,14 +241,17 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public boolean changeGoalName(String goalName, String newName) {
+    public boolean changeGoalName(String goalName, Dictionary newValues) {
         // get the most recent cumulative value for the record with the requested goalName
         SQLiteDatabase DB = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put("goalName", newName);
+        contentValues.put("goalName", (String) newValues.get("Goal Name"));
+        contentValues.put("goal", (int) newValues.get("Goal"));
+        contentValues.put("period", (int) newValues.get("Period"));
 
-        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
+
+        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {(String) newValues.get("Goal Name")});
         if (result == -1) {
             return false;
         } else {

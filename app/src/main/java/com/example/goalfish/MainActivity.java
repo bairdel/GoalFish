@@ -209,12 +209,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         cursor.moveToFirst();
         String name = cursor.getString(1);
 
-        updateHome(name);
+        //updateHome(name);
 
         // refresh page
-        Intent i = getIntent();
-        finish();
-        startActivity(i);
+//        Intent i = getIntent();
+//        finish();
+//        startActivity(i);
 
 //        TextView t = (TextView) findViewById(R.id.currWordCount);
 //        String c = (String.valueOf(DB.getCum(name)));
