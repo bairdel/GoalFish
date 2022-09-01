@@ -9,6 +9,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -22,24 +23,21 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
 
+            // get the goal name for this widget
             SharedPreferences prefs = context.getSharedPreferences(SHARED_PRES, Context.MODE_PRIVATE);
             String valueFromSpinner = prefs.getString(KEY_BUTTON_TEXT + appWidgetId, "Default Goal");
 
             DB = new DBHelper(context);
-            //TextView t = (TextView) findViewById(R.id.widgetWord);
-            String c = (String.valueOf(DB.getCum(valueFromSpinner)));
-            //t.setText(c);
 
-            //TextView t2 = (TextView) findViewById(R.id.widgetGoal);
+            String c = (String.valueOf(DB.getCum(valueFromSpinner)));
             String c2 = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
-            //t2.setText(c2);
 
             String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
             int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
             int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
-
             String result[] = DB.calculateDates(startDate, period, reoccurring);
 
+            // opens main activity on button press
             Intent intent = new Intent(context, MainActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
@@ -53,4 +51,24 @@ public class WidgetProvider extends AppWidgetProvider {
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
     }
+
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
+
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.progress_widget);
+
+        int minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        int maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        int minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+        int maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+
+        if (maxWidth > 150) {
+            views.setInt(R.id.widgetButton, "width", 140);
+        }
+
+
+
+    }
 }
+
+

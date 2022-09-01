@@ -90,9 +90,9 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
             Log.d("entryinserted", "fail");
         }
 
+
         // return to main activity
         Intent i = new Intent(this, MainActivity.class);
-//        i.putExtra("newWords", s);
         startActivity(i);
     }
 

@@ -23,7 +23,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase DB) {
         // create tables
-        DB.execSQL("create Table wordLogs(id INTEGER primary key AUTOINCREMENT NOT NULL, date TEXT NOT NULL, words INTEGER NOT NULL, cumulative INTEGER NOT NULL, goal_id INTEGER NOT NULL, FOREIGN KEY(goal_id) REFERENCES goalsTable(id))");
+        DB.execSQL("create Table wordLogs(id INTEGER primary key AUTOINCREMENT NOT NULL, date TEXT NOT NULL, words INTEGER NOT NULL, cumulative INTEGER NOT NULL, goal_id INTEGER NOT NULL, totalCount INTEGER, FOREIGN KEY(goal_id) REFERENCES goalsTable(id))");
         DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, startDate TEXT, reoccurring BOOL, limitReached BOOL)");
 
         // get current date as string - might need to do something about making this work all the time
@@ -37,6 +37,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("words", 0);
         contentValues.put("cumulative", 0);
         contentValues.put("goal_id", 1);
+        contentValues.put("totalCount", 0);
         long r = DB.insert("wordLogs", null, contentValues);
 
         ContentValues contentValues2 = new ContentValues();
@@ -66,13 +67,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     public Boolean insertLogsData(String date, int words, int cumulative, String goalName){
-        // create a new entry in wordLogs
         SQLiteDatabase DB = this.getWritableDatabase();
+
+        // get the current running total
+        Cursor cursor = DB.rawQuery("select * from wordLogs where goal_id=? ORDER BY id DESC LIMIT 1", new String[] {String.valueOf(convertGoalToId(goalName))});
+        cursor.moveToFirst();
+        int runningTotal = cursor.getInt(5);
+        cursor.close();
+
+        // create a new entry in wordLogs
         ContentValues contentValues = new ContentValues();
         contentValues.put("date", date);
         contentValues.put("words", words);
         contentValues.put("cumulative", cumulative);
         contentValues.put("goal_id", convertGoalToId(goalName));
+        contentValues.put("totalCount", runningTotal + words);
         long result = DB.insert("wordLogs", null, contentValues);
     if (result==-1){
         return false;
@@ -104,6 +113,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues2.put("words", 0);
         contentValues2.put("cumulative", 0);
         contentValues2.put("goal_id", convertGoalToId(goalName));
+        contentValues2.put("totalCount", 0);
         long r = DB.insert("wordLogs", null, contentValues2);
 
         if (result==-1){
@@ -199,6 +209,18 @@ public class DBHelper extends SQLiteOpenHelper {
         return c;
     }
 
+    public int getTotal(String goalName) {
+        // get the most recent cumulative value for the record with the requested goalName
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = DB.rawQuery("select * from wordLogs where goal_id=? ORDER BY id DESC LIMIT 1", new String[] {String.valueOf(convertGoalToId(goalName))});
+        cursor.moveToFirst();
+
+        int c = cursor.getInt(5);
+        //Log.d("cumulative", String.valueOf(c));
+        //int cum = Integer.parseInt(c);
+        return c;
+    }
+
     public Dictionary getGoal(String goalName) {
         // get all information about a goal given a goalName
         SQLiteDatabase DB = this.getWritableDatabase();
@@ -217,7 +239,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public int getLimitReached(String goalName) {
-        // get the most recent cumulative value for the record with the requested goalName
+        // return the value of limitReached for a goal to see if a blank entry has already been added
         SQLiteDatabase DB = this.getWritableDatabase();
         Cursor cursor = DB.rawQuery("select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
         cursor.moveToFirst();
@@ -229,7 +251,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public boolean setLimitReached(String goalName, boolean limitReached) {
-        // get the most recent cumulative value for the record with the requested goalName
+        // change the limitReached boolean
         SQLiteDatabase DB = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();

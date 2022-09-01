@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         TextView daysLeft = (TextView) findViewById((R.id.daysLeft));
         TextView finishDate = (TextView) findViewById((R.id.finishDate));
+        TextView runningCount = (TextView) findViewById((R.id.runningTotal));
 
         String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
         int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         daysLeft.setText(result[0]);
         finishDate.setText(result[1]);
+        runningCount.setText(String.valueOf(DB.getTotal(valueFromSpinner)));
 
         if ((Integer.parseInt(result[0]) == period) && (DB.getLimitReached(valueFromSpinner) == 0)) {
             // daysLeft = 0 and hasn't been updated today

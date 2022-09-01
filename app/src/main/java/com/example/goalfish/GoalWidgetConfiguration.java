@@ -86,12 +86,17 @@ public class GoalWidgetConfiguration extends AppCompatActivity implements Adapte
         String c = (String.valueOf(DB.getCum(valueFromSpinner)));
         String c2 = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
 
+        String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+        int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
+        int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
+        String result[] = DB.calculateDates(startDate, period, reoccurring);
 
         RemoteViews views = new RemoteViews(this.getPackageName(), R.layout.progress_widget);
         views.setOnClickPendingIntent(R.id.widgetButton, pendingIntent);
         views.setProgressBar(R.id.progressBar, Integer.parseInt(c2), Integer.parseInt(c), false);
         views.setTextViewText(R.id.widgetWord, c);
         views.setTextViewText(R.id.widgetGoal, c2);
+        views.setTextViewText(R.id.widgetDaysLeft, result[0]);
         //views.setInt(R.id.widgetButton, "setBackgroundColor", COLOR.RED);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);

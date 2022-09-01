@@ -12,7 +12,7 @@
         android:layout_centerInParent="true"
         android:width="100dp"
         android:height="40dp"
-        android:background="#FFAA00"
+        android:background="@color/colorPrimary"
         android:stateListAnimator="@null"
         android:visibility="visible"
 
@@ -68,12 +68,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingTop="2dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="5"
                 android:gravity="right"
                 android:text="Days Left: "
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
@@ -83,10 +84,10 @@
                 android:id="@+id/widgetDaysLeft"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="3"
                 android:gravity="left"
-                android:text="N/A"
                 android:paddingLeft="5dp"
+                android:text="N/A"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textSize="10sp" />
 
@@ -97,9 +98,9 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:progressBackgroundTint="@color/light_blue_900"
+            android:progressBackgroundTint="#3203DA"
             android:progressTint="@color/colorAccent"
-            android:secondaryProgressTint="@color/light_blue_900" />
+/>
 
     </LinearLayout>
 
