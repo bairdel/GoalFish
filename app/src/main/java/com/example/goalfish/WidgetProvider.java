@@ -1,10 +1,14 @@
 package com.example.goalfish;
 
+import static com.example.goalfish.GoalWidgetConfiguration.KEY_BUTTON_TEXT;
+import static com.example.goalfish.GoalWidgetConfiguration.SHARED_PRES;
+
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
@@ -15,6 +19,9 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
+
+            SharedPreferences prefs = context.getSharedPreferences(SHARED_PRES, Context.MODE_PRIVATE);
+            String valueFromSpinner = prefs.getString(KEY_BUTTON_TEXT + appWidgetId, "Default Goal");
 
             DB = new DBHelper(context);
             //TextView t = (TextView) findViewById(R.id.widgetWord);
