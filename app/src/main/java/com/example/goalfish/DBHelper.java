@@ -9,8 +9,10 @@ import android.util.Log;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Locale;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -270,6 +272,48 @@ public class DBHelper extends SQLiteOpenHelper {
         } return false;
     }
 
+
+    public String[] calculateDates(String startDate, int period, int reoccurring){
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+        LocalDate dateTime = LocalDate.parse(startDate, formatter);
+
+        LocalDate currentDate = LocalDate.now();
+
+        //long daysBetween = ChronoUnit.DAYS.between(dateTime, currentDate); // date in future gives neg
+        String daysBetween = String.valueOf(ChronoUnit.DAYS.between(currentDate, dateTime)); // date in future gives pos
+
+        //Log.d("daysBetweeen", String.valueOf(daysBetween));
+        Log.d("daysBetweeen", String.valueOf(daysBetween));
+
+        String daysLeft;
+        String finishDate;
+        LocalDate base;
+        if (reoccurring == 1) {
+            int count;
+            String mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, dateTime));
+            base = dateTime;
+            while (Integer.parseInt(mid) <= 0) {
+                base = base.plusDays(period);
+                mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
+            }
+            daysLeft = mid;
+            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            finishDate = base.format(myFormatObj);
+        } else {
+            daysLeft = daysBetween;
+            base = dateTime;
+            base = base.plusDays(period);
+            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            finishDate = base.format(myFormatObj);
+        }
+
+
+        String[] answer = new String[2];
+        answer[0] = daysLeft;
+        answer[1] = finishDate;
+        return answer;
+    }
 
     // unused methods ////////////
 

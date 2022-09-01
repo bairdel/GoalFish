@@ -4,22 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GoalWidgetConfiguration"
+    android:gravity="center_horizontal|center_vertical"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
-    >
+    android:padding="20dp"
+    tools:context=".GoalWidgetConfiguration">
 
-    <EditText
+    <!--    <EditText-->
+    <!--        android:id="@+id/configureEntry"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:ems="10"-->
+    <!--        android:inputType="textPersonName"-->
+    <!--        android:text="Name" />-->
+
+    <Spinner
         android:id="@+id/configureEntry"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:layout_height="40dp"
+        android:padding="10dp"
+        android:spinnerMode="dropdown" />
 
     <Button
-        android:onClick="confirmConfiguration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:layout_margin="30dp"
+        android:onClick="confirmConfiguration"
+        android:text="Confirm" />
+
 </LinearLayout>

@@ -12,7 +12,7 @@
         android:layout_centerInParent="true"
         android:width="100dp"
         android:height="40dp"
-        android:background="#72FF6F00"
+        android:background="#FFAA00"
         android:stateListAnimator="@null"
         android:visibility="visible"
 
@@ -31,33 +31,75 @@
 
             <TextView
                 android:id="@+id/widgetWord"
-                android:layout_width="50dp"
-                android:layout_height="34dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
+                android:layout_weight="5"
                 android:autoText="false"
                 android:gravity="center"
                 android:text="@string/currWordCount"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                app:layout_constraintHorizontal_chainStyle="spread" />
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slash"
+                app:layout_constraintHorizontal_chainStyle="spread"/>
 
             <TextView
                 android:id="@+id/widgetGoal"
-                android:layout_width="50dp"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
+                android:layout_weight="5"
                 android:gravity="center"
                 android:text="@string/goalWordCount"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                app:layout_constraintHorizontal_chainStyle="spread" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:text="Days Left: "
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/widgetDaysLeft"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="N/A"
+                android:paddingLeft="5dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textSize="10sp" />
+
         </LinearLayout>
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="28dp" />
+            android:layout_height="wrap_content"
+            android:progressBackgroundTint="@color/light_blue_900"
+            android:progressTint="@color/colorAccent"
+            android:secondaryProgressTint="@color/light_blue_900" />
 
     </LinearLayout>
 
