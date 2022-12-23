@@ -19,7 +19,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/titleText"
+                android:id="@+id/titleTextRestore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -38,7 +38,7 @@
                     android:layout_height="41dp">
 
                     <TextView
-                        android:id="@+id/textView9"
+                        android:id="@+id/uploadtext"
                         android:layout_width="98dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
@@ -76,7 +76,7 @@
             </TableLayout>
 
             <Button
-                android:id="@+id/messageButton"
+                android:id="@+id/exportFile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Calculate" />

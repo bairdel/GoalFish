@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,8 +21,6 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -58,6 +55,86 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
+
+
+    }
+
+    public void restoreProgress(View view){
+        // allow exporting of db or importing a db
+//Create a View object yourself through inflater
+        LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(view.getContext().LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.restore_or_backup, null);
+
+        //Specify the length and width through constants
+        int width = LinearLayout.LayoutParams.MATCH_PARENT;
+        int height = LinearLayout.LayoutParams.MATCH_PARENT;
+
+        //Make Inactive Items Outside Of PopupWindow
+        boolean focusable = true;
+
+        //Create a window with our parameters
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+        //Set the location of the window on the screen
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+        //Initialize the elements of our window, install the handler
+
+
+        Button buttonUpload = popupView.findViewById(R.id.uploadFile);
+        buttonUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+//                int newWordCount = Integer.parseInt(((TextView)popupView.findViewById(R.id.newWordCount)).getText().toString());
+//                int oldWordCount = Integer.parseInt(((TextView)popupView.findViewById(R.id.oldWordCount)).getText().toString());
+//
+//                int newWords = newWordCount - oldWordCount;
+//
+//                SharedPreferences.Editor editor = sharedpreferences.edit();
+//                editor.putString("oldWordCount", String.valueOf(newWordCount));
+//                editor.commit();
+//
+//                EditText wordInput = findViewById(R.id.newWords);
+//                wordInput.setText(String.valueOf(newWords));
+
+                popupWindow.dismiss();
+
+            }
+        });
+
+        Button buttonExport = popupView.findViewById(R.id.exportFile);
+        buttonExport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+//                int newWordCount = Integer.parseInt(((TextView)popupView.findViewById(R.id.newWordCount)).getText().toString());
+//                int oldWordCount = Integer.parseInt(((TextView)popupView.findViewById(R.id.oldWordCount)).getText().toString());
+//
+//                int newWords = newWordCount - oldWordCount;
+//
+//                SharedPreferences.Editor editor = sharedpreferences.edit();
+//                editor.putString("oldWordCount", String.valueOf(newWordCount));
+//                editor.commit();
+//
+//                EditText wordInput = findViewById(R.id.newWords);
+//                wordInput.setText(String.valueOf(newWords));
+
+                popupWindow.dismiss();
+
+            }
+        });
+
+        // close window when outside clicked
+        popupView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //Close the window when clicked
+                popupWindow.dismiss();
+                return true;
+            }
+        });
+
 
 
     }
@@ -123,7 +200,7 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
 
 
 
-        Button buttonEdit = popupView.findViewById(R.id.messageButton);
+        Button buttonEdit = popupView.findViewById(R.id.exportFile);
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
