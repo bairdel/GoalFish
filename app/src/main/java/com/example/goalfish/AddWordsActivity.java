@@ -1,12 +1,17 @@
 package com.example.goalfish;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,6 +27,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -107,6 +116,13 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
         buttonExport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+                }
+
+                saveDataAsFile();
 
 //                int newWordCount = Integer.parseInt(((TextView)popupView.findViewById(R.id.newWordCount)).getText().toString());
 //                int oldWordCount = Integer.parseInt(((TextView)popupView.findViewById(R.id.oldWordCount)).getText().toString());
@@ -253,5 +269,43 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
             Log.d("default selection", name);
             currentGoal = name;
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1000:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Permission Not Granted", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                }
+        }
+
+
+    private void saveDataAsFile() {
+    String fileName;
+    String content;
+
+    fileName = "Test";
+    content = "Test Content";
+
+    File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), fileName);
+    try {
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(content.getBytes());
+        fos.close();
+        Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
+        Toast.makeText(this, "File Not Found", Toast.LENGTH_SHORT).show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        Toast.makeText(this, "Error Saving", Toast.LENGTH_SHORT).show();
+    }
+
+
     }
 }
