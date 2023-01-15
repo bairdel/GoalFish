@@ -61,6 +61,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         int c = cursor.getInt(0);
+        cursor.close();
         return c;
     }
 
@@ -206,6 +207,7 @@ public class DBHelper extends SQLiteOpenHelper {
         int c = cursor.getInt(3);
         //Log.d("cumulative", String.valueOf(c));
         //int cum = Integer.parseInt(c);
+        cursor.close();
         return c;
     }
 
@@ -218,6 +220,7 @@ public class DBHelper extends SQLiteOpenHelper {
         int c = cursor.getInt(5);
         //Log.d("cumulative", String.valueOf(c));
         //int cum = Integer.parseInt(c);
+        cursor.close();
         return c;
     }
 
@@ -235,6 +238,7 @@ public class DBHelper extends SQLiteOpenHelper {
         dict.put("Reoccurring", cursor.getInt(5));
         dict.put("limitReached", cursor.getInt(6));
 
+        cursor.close();
         return dict;
     }
 
@@ -247,6 +251,7 @@ public class DBHelper extends SQLiteOpenHelper {
         int c = cursor.getInt(6);
         //Log.d("cumulative", String.valueOf(c));
         //int cum = Integer.parseInt(c);
+        cursor.close();
         return c;
     }
 
@@ -266,7 +271,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public boolean changeGoalName(String goalName, Dictionary newValues) {
-        // get the most recent cumulative value for the record with the requested goalName
+        //
         SQLiteDatabase DB = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
