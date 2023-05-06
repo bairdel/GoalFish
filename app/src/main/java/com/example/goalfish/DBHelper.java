@@ -25,6 +25,7 @@ public class DBHelper extends SQLiteOpenHelper {
         // create tables
         DB.execSQL("create Table wordLogs(id INTEGER primary key AUTOINCREMENT NOT NULL, date TEXT NOT NULL, words INTEGER NOT NULL, cumulative INTEGER NOT NULL, goal_id INTEGER NOT NULL, totalCount INTEGER, FOREIGN KEY(goal_id) REFERENCES goalsTable(id))");
         DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, startDate TEXT, reoccurring BOOL, limitReached BOOL)");
+        // changed so startDate is effectively finishDate
 
         // get current date as string - might need to do something about making this work all the time
         LocalDate myDateObj = LocalDate.now();
@@ -94,19 +95,24 @@ public class DBHelper extends SQLiteOpenHelper {
     public Boolean insertGoalData(String goalName, int goal, int period, String startDate, boolean reoccurring){
         // create a new goal, and create initial entry in wordLogs
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+        LocalDate startDateDT = LocalDate.parse(startDate, formatter);
+        LocalDate finishDateTemp = startDateDT.plusDays(period);
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String finishDate = finishDateTemp.format(myFormatObj);
+
         SQLiteDatabase DB = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("goalName", goalName);
         contentValues.put("goal", goal);
         contentValues.put("period", period);
-        contentValues.put("startDate", startDate);
+        contentValues.put("startDate", finishDate);
         contentValues.put("reoccurring", reoccurring);
         contentValues.put("limitReached", false);
         long result = DB.insert("goalsTable", null, contentValues);
 
         // get current date as string
         LocalDate myDateObj = LocalDate.now();
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = myDateObj.format(myFormatObj);
 
         ContentValues contentValues2 = new ContentValues();
@@ -299,48 +305,61 @@ public class DBHelper extends SQLiteOpenHelper {
         } return false;
     }
 
+    public void changeFinishDate(String goalName, String newDate) {
+        // change the limitReached boolean
+        SQLiteDatabase DB = this.getWritableDatabase();
 
-    public String[] calculateDates(String startDate, int period, int reoccurring){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("startDate", newDate);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
-        LocalDate dateTime = LocalDate.parse(startDate, formatter);
-
-        LocalDate currentDate = LocalDate.now();
-
-        //long daysBetween = ChronoUnit.DAYS.between(dateTime, currentDate); // date in future gives neg
-        String daysBetween = String.valueOf(ChronoUnit.DAYS.between(currentDate, dateTime)); // date in future gives pos
-
-        //Log.d("daysBetweeen", String.valueOf(daysBetween));
-        Log.d("daysBetweeen", String.valueOf(daysBetween));
-
-        String daysLeft;
-        String finishDate;
-        LocalDate base;
-        if (reoccurring == 1) {
-            int count;
-            String mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, dateTime));
-            base = dateTime;
-            while (Integer.parseInt(mid) <= 0) {
-                base = base.plusDays(period);
-                mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
-            }
-            daysLeft = mid;
-            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            finishDate = base.format(myFormatObj);
-        } else {
-            daysLeft = daysBetween;
-            base = dateTime;
-            base = base.plusDays(period);
-            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            finishDate = base.format(myFormatObj);
-        }
-
-
-        String[] answer = new String[2];
-        answer[0] = daysLeft;
-        answer[1] = finishDate;
-        return answer;
+        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
     }
+
+//    public String[] calculateDates(String oldfinishDate, int period, int reoccurring){
+//
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+//        LocalDate endDate = LocalDate.parse(oldfinishDate, formatter);
+//
+//        LocalDate currentDate = LocalDate.now();
+//
+//        String daysBetween = ChronoUnit.DAYS.between(endDate, currentDate); // date in future gives neg
+//        //String daysBetween = String.valueOf(ChronoUnit.DAYS.between(currentDate, endDate)); // date in future gives pos
+//
+//        //Log.d("daysBetweeen", String.valueOf(daysBetween));
+//        Log.d("daysBetweeen", String.valueOf(daysBetween));
+//
+//        String daysLeft;
+//        String finishDate;
+//        LocalDate base;
+//        if (reoccurring == 1) {
+//            int count;
+//            String mid = String.valueOf(ChronoUnit.DAYS.between(endDate, currentDate));
+//            if (Integer.parseInt(mid) <= 0) {
+//                // update finishDate in database
+//                // reset log
+//            }
+//            base = endDate;
+//            while (Integer.parseInt(mid) <= 0) {
+//                base = base.plusDays(period);
+//                mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
+//            }
+//            daysLeft = mid;
+//            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            finishDate = base.format(myFormatObj);
+//        } else {
+//            daysLeft = daysBetween;
+//            base = endDate;
+//            base = base.plusDays(period);
+//            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            finishDate = base.format(myFormatObj);
+//        }
+//
+//
+//        String[] answer = new String[2];
+//        answer[0] = daysLeft;
+//        answer[1] = finishDate;
+//        return answer;
+//    }
 
     // unused methods ////////////
 

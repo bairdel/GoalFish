@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void updateHome (String valueFromSpinner) {
 
+        // updating the progress numbers
         TextView t = (TextView) findViewById(R.id.currWordCount);
         String c = (String.valueOf(DB.getCum(valueFromSpinner)));
         t.setText(c);
@@ -105,42 +106,99 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         TextView finishDate = (TextView) findViewById((R.id.finishDate));
         TextView runningCount = (TextView) findViewById((R.id.runningTotal));
 
-        String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+        String currentFinishDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
         int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
         int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
 
-        String result[] = DB.calculateDates(startDate, period, reoccurring);
+        // get current date as string
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = currentDate.format(myFormatObj);
 
-        daysLeft.setText(result[0]);
-        finishDate.setText(result[1]);
-        runningCount.setText(String.valueOf(DB.getTotal(valueFromSpinner)));
+        // convert currentFinishDate to datetime object
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+        LocalDate currentFinishDateDT = LocalDate.parse(currentFinishDate, formatter);
 
-        if ((Integer.parseInt(result[0]) == period) && (DB.getLimitReached(valueFromSpinner) == 0)) {
-            // daysLeft = 0 and hasn't been updated today
+        // this is the amount of days between the current date and the proposed finish date
+        // if this is negative, and the goal is reoccurring, the logs should be reset
+        // and the finishdate should be updated by a multiple of the period
+        String daysBetween = String.valueOf(ChronoUnit.DAYS.between(currentDate, currentFinishDateDT));
 
-            // get current date as string
-            LocalDate myDateObj = LocalDate.now();
-            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String formattedDate = myDateObj.format(myFormatObj);
 
-            // insert data into wordLogs table
-            Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
 
-            // check if inserted - might not work
-            if (checkInsertData==true) {
-                Toast.makeText(MainActivity.this, "Word Count Updated", Toast.LENGTH_SHORT).show();
-                Log.d("entryinserted", "success");
-            }else{
-                Toast.makeText(MainActivity.this, "Goal Not Updated", Toast.LENGTH_SHORT).show();
-                Log.d("entryinserted", "fail");
+        if (reoccurring == 1) {
+            // if the difference between days is negative
+            if (Integer.parseInt(daysBetween) <= 0) {
+                // update finishDate in database
+                LocalDate base;
+                String mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, currentFinishDateDT));
+                base = currentFinishDateDT;
+                while (Integer.parseInt(mid) <= 0) {
+                    base = base.plusDays(period);
+                    mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
+                }
+                daysLeft.setText(mid);
+                finishDate.setText(base.format(formatter));
+
+                DB.changeFinishDate(valueFromSpinner, base.format(formatter));
+
+                // reset log
+
+                Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
+
+                // check if inserted - might not work
+                if (checkInsertData==true) {
+                    Toast.makeText(MainActivity.this, "Word Count Updated", Toast.LENGTH_SHORT).show();
+                    Log.d("entryinserted", "success");
+                }else{
+                    Toast.makeText(MainActivity.this, "Goal Not Updated", Toast.LENGTH_SHORT).show();
+                    Log.d("entryinserted", "fail");
+                }
+
+            } else {
+                daysLeft.setText(daysBetween);
+                finishDate.setText(currentFinishDate);
             }
 
-            DB.setLimitReached(valueFromSpinner, true);
 
-
-        } else if (Integer.parseInt(result[0]) != period) {
-            DB.setLimitReached(valueFromSpinner, false);
+            currentFinishDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+        } else if (reoccurring == 0) {
+            daysLeft.setText(daysBetween);
+            finishDate.setText(currentFinishDate);
         }
+
+        //String result[] = DB.calculateDates(startDate, period, reoccurring);
+
+//        daysLeft.setText(result[0]);
+//        finishDate.setText(result[1]);
+        runningCount.setText(String.valueOf(DB.getTotal(valueFromSpinner)));
+
+//        if ((Integer.parseInt(result[0]) == period) && (DB.getLimitReached(valueFromSpinner) == 0)) {
+//            // daysLeft = 0 and hasn't been updated today
+//
+//            // get current date as string
+//            LocalDate myDateObj = LocalDate.now();
+//            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            String formattedDate = myDateObj.format(myFormatObj);
+//
+//            // insert data into wordLogs table
+//            Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
+//
+//            // check if inserted - might not work
+//            if (checkInsertData==true) {
+//                Toast.makeText(MainActivity.this, "Word Count Updated", Toast.LENGTH_SHORT).show();
+//                Log.d("entryinserted", "success");
+//            }else{
+//                Toast.makeText(MainActivity.this, "Goal Not Updated", Toast.LENGTH_SHORT).show();
+//                Log.d("entryinserted", "fail");
+//            }
+//
+//            DB.setLimitReached(valueFromSpinner, true);
+//
+//
+//        } else if (Integer.parseInt(result[0]) != period) {
+//            DB.setLimitReached(valueFromSpinner, false);
+//        }
     }
 
     @Override
