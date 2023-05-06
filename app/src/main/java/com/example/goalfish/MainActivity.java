@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // if this is negative, and the goal is reoccurring, the logs should be reset
         // and the finishdate should be updated by a multiple of the period
         String daysBetween = String.valueOf(ChronoUnit.DAYS.between(currentDate, currentFinishDateDT));
-
+        Log.d("days between", daysBetween);
 
 
         if (reoccurring == 1) {
@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 daysLeft.setText(mid);
                 finishDate.setText(base.format(formatter));
 
+                Log.d("new finish date", base.format(formatter));
                 DB.changeFinishDate(valueFromSpinner, base.format(formatter));
 
                 // reset log

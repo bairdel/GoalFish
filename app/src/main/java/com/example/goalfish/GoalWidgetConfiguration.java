@@ -17,6 +17,9 @@ import android.widget.EditText;
 import android.widget.RemoteViews;
 import android.widget.Spinner;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 public class GoalWidgetConfiguration extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -89,14 +92,20 @@ public class GoalWidgetConfiguration extends AppCompatActivity implements Adapte
         String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
         int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
         int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
-        String result[] = DB.calculateDates(startDate, period, reoccurring);
+//        String result[] = DB.calculateDates(startDate, period, reoccurring);
+
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate currentFinishDateDT = LocalDate.parse(startDate, myFormatObj);
+        String daysBetween = String.valueOf(ChronoUnit.DAYS.between(currentDate, currentFinishDateDT));
+
 
         RemoteViews views = new RemoteViews(this.getPackageName(), R.layout.progress_widget);
         views.setOnClickPendingIntent(R.id.widgetButton, pendingIntent);
         views.setProgressBar(R.id.progressBar, Integer.parseInt(c2), Integer.parseInt(c), false);
         views.setTextViewText(R.id.widgetWord, c);
         views.setTextViewText(R.id.widgetGoal, c2);
-        views.setTextViewText(R.id.widgetDaysLeft, result[0]);
+        views.setTextViewText(R.id.widgetDaysLeft, daysBetween);
         //views.setInt(R.id.widgetButton, "setBackgroundColor", COLOR.RED);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
