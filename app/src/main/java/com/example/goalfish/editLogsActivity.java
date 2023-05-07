@@ -3,6 +3,8 @@ package com.example.goalfish;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RemoteViews;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -113,6 +116,15 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
                     Log.d("entryinserted", "fail");
                 }
 
+                // update widget
+                String cum = (String.valueOf(DB.getCum(currentGoal)));
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(editLogsActivity.this);
+                RemoteViews remoteViews = new RemoteViews(editLogsActivity.this.getPackageName(), R.layout.progress_widget);
+                remoteViews.setTextViewText(R.id.widgetWord, (String.valueOf(cum)));
+                final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(editLogsActivity.this, WidgetProvider.class));
+                appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, remoteViews);
+
+
                 // refresh page
                 Intent i = getIntent();
                 finish();
@@ -128,6 +140,8 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         });
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.show();
+
+
 
     }
 

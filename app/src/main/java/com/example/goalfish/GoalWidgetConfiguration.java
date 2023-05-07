@@ -82,7 +82,7 @@ public class GoalWidgetConfiguration extends AppCompatActivity implements Adapte
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
 
         Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         //String valueFromSpinner = editTextButton.getText().toString();
 

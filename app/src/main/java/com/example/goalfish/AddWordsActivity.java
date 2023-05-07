@@ -2,6 +2,8 @@ package com.example.goalfish;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RemoteViews;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,6 +92,13 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
             Toast.makeText(AddWordsActivity.this, "Entry Not Inserted", Toast.LENGTH_SHORT).show();
             Log.d("entryinserted", "fail");
         }
+
+        // update widget
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        RemoteViews remoteViews = new RemoteViews(this.getPackageName(), R.layout.progress_widget);
+        remoteViews.setTextViewText(R.id.widgetWord, (String.valueOf(cum)));
+        final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, WidgetProvider.class));
+        appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, remoteViews);
 
 
         // return to main activity
