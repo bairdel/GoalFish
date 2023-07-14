@@ -125,7 +125,9 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
                 String cum = (String.valueOf(DB.getCum(currentGoal)));
                 AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(editLogsActivity.this);
                 RemoteViews remoteViews = new RemoteViews(editLogsActivity.this.getPackageName(), R.layout.progress_widget);
-                remoteViews.setTextViewText(R.id.widgetWord, (String.valueOf(cum)));
+                remoteViews.setTextViewText(R.id.widgetWord, cum);
+                String c2 = (String.valueOf(DB.getGoal(currentGoal).get("Goal")));
+                remoteViews.setProgressBar(R.id.progressBar, Integer.parseInt(c2), Integer.parseInt(cum), false);
                 final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(editLogsActivity.this, WidgetProvider.class));
                 appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, remoteViews);
 

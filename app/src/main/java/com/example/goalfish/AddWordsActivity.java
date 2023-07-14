@@ -96,7 +96,10 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
         // update widget
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         RemoteViews remoteViews = new RemoteViews(this.getPackageName(), R.layout.progress_widget);
-        remoteViews.setTextViewText(R.id.widgetWord, (String.valueOf(cum)));
+        String c = (String.valueOf(DB.getCum(currentGoal)));
+        String c2 = (String.valueOf(DB.getGoal(currentGoal).get("Goal")));
+        remoteViews.setTextViewText(R.id.widgetWord, c);
+        remoteViews.setProgressBar(R.id.progressBar, Integer.parseInt(c2), Integer.parseInt(c), false);
         final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, WidgetProvider.class));
         appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, remoteViews);
 

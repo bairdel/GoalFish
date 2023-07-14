@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         TextView finishDate = (TextView) findViewById((R.id.finishDate));
         TextView runningCount = (TextView) findViewById((R.id.runningTotal));
 
-        String currentFinishDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+        String currentFinishDate = (String) (DB.getGoal(valueFromSpinner)).get("End Date");
         int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
         int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
 
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
 
 
-            currentFinishDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+            currentFinishDate = (String) (DB.getGoal(valueFromSpinner)).get("End Date");
         } else if (reoccurring == 0) {
             daysLeft.setText(daysBetween);
             finishDate.setText(currentFinishDate);

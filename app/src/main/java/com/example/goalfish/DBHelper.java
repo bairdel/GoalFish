@@ -24,7 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase DB) {
         // create tables
         DB.execSQL("create Table wordLogs(id INTEGER primary key AUTOINCREMENT NOT NULL, date TEXT NOT NULL, words INTEGER NOT NULL, cumulative INTEGER NOT NULL, goal_id INTEGER NOT NULL, totalCount INTEGER, FOREIGN KEY(goal_id) REFERENCES goalsTable(id))");
-        DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, startDate TEXT, reoccurring BOOL, limitReached BOOL)");
+        DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, endDate TEXT, reoccurring BOOL)");
         // changed so startDate is effectively finishDate
 
         // get current date as string - might need to do something about making this work all the time
@@ -45,9 +45,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues2.put("goalName", "Default Goal");
         contentValues2.put("goal", 500);
         contentValues2.put("period", 1);
-        contentValues2.put("startDate", formattedDate);
+        contentValues2.put("endDate", formattedDate);
         contentValues2.put("reoccurring", true);
-        contentValues2.put("limitReached", true);
         long r2 = DB.insert("goalsTable", null, contentValues2);
 
         // insertlogsdata won't work here - calls database recursively
@@ -106,9 +105,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("goalName", goalName);
         contentValues.put("goal", goal);
         contentValues.put("period", period);
-        contentValues.put("startDate", finishDate);
+        contentValues.put("endDate", finishDate);
         contentValues.put("reoccurring", reoccurring);
-        contentValues.put("limitReached", false);
         long result = DB.insert("goalsTable", null, contentValues);
 
         // get current date as string
@@ -240,9 +238,8 @@ public class DBHelper extends SQLiteOpenHelper {
         dict.put("Goal Name", cursor.getString(1));
         dict.put("Goal", cursor.getInt(2));
         dict.put("Period", cursor.getInt(3));
-        dict.put("Start Date", cursor.getString(4));
+        dict.put("End Date", cursor.getString(4));
         dict.put("Reoccurring", cursor.getInt(5));
-        dict.put("limitReached", cursor.getInt(6));
 
         cursor.close();
         return dict;
@@ -261,20 +258,20 @@ public class DBHelper extends SQLiteOpenHelper {
         return c;
     }
 
-    public boolean setLimitReached(String goalName, boolean limitReached) {
-        // change the limitReached boolean
-        SQLiteDatabase DB = this.getWritableDatabase();
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("limitReached", limitReached);
-
-        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
-        if (result == -1) {
-            return false;
-        } else {
-            return true;
-        }
-    }
+//    public boolean setLimitReached(String goalName, boolean limitReached) {
+//        // change the limitReached boolean
+//        SQLiteDatabase DB = this.getWritableDatabase();
+//
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put("limitReached", limitReached);
+//
+//        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
+//        if (result == -1) {
+//            return false;
+//        } else {
+//            return true;
+//        }
+//    }
 
     public boolean changeGoalName(String goalName, Dictionary newValues) {
         //
@@ -312,7 +309,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase DB = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put("startDate", newDate);
+        contentValues.put("endDate", newDate);
 
         long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
     }
@@ -372,37 +369,37 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public Boolean updateData(int id, String date, int words, int cumulative){
-        SQLiteDatabase DB = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("words", words);
-        contentValues.put("cumulative", cumulative);
-        Cursor cursor = DB.rawQuery("Select * from wordLogs where id = ?", new String[] {String.valueOf(id)});
-        if (cursor.getCount()>0) {
-            long result = DB.update("wordLogs", contentValues, "id=?", new String[] {String.valueOf(id)});
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
-        }else{
-            return false;
-        }}
-
-    public Boolean deleteData(int id, int words, int cumulative){
-        SQLiteDatabase DB = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("words", words);
-        contentValues.put("cumulative", cumulative);
-        Cursor cursor = DB.rawQuery("Select * from wordLogs where id = ?", new String[] {String.valueOf(id)});
-        if (cursor.getCount()>0) {
-            long result = DB.update("wordLogs", contentValues, "id=?", new String[]{String.valueOf(id)});
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
-        }else{
-            return false;
-        }}
+//    public Boolean updateData(int id, String date, int words, int cumulative){
+//        SQLiteDatabase DB = this.getWritableDatabase();
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put("words", words);
+//        contentValues.put("cumulative", cumulative);
+//        Cursor cursor = DB.rawQuery("Select * from wordLogs where id = ?", new String[] {String.valueOf(id)});
+//        if (cursor.getCount()>0) {
+//            long result = DB.update("wordLogs", contentValues, "id=?", new String[] {String.valueOf(id)});
+//            if (result == -1) {
+//                return false;
+//            } else {
+//                return true;
+//            }
+//        }else{
+//            return false;
+//        }}
+//
+//    public Boolean deleteData(int id, int words, int cumulative){
+//        SQLiteDatabase DB = this.getWritableDatabase();
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put("words", words);
+//        contentValues.put("cumulative", cumulative);
+//        Cursor cursor = DB.rawQuery("Select * from wordLogs where id = ?", new String[] {String.valueOf(id)});
+//        if (cursor.getCount()>0) {
+//            long result = DB.update("wordLogs", contentValues, "id=?", new String[]{String.valueOf(id)});
+//            if (result == -1) {
+//                return false;
+//            } else {
+//                return true;
+//            }
+//        }else{
+//            return false;
+//        }}
 }
