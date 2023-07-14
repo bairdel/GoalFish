@@ -280,13 +280,15 @@ public class DBHelper extends SQLiteOpenHelper {
         //
         SQLiteDatabase DB = this.getWritableDatabase();
 
+        int goalID = (int) newValues.get("Goal ID");
+
         ContentValues contentValues = new ContentValues();
         contentValues.put("goalName", (String) newValues.get("Goal Name"));
         contentValues.put("goal", (int) newValues.get("Goal"));
         contentValues.put("period", (int) newValues.get("Period"));
 
 
-        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {(String) newValues.get("Goal Name")});
+        long result = DB.update("goalsTable", contentValues, "id=?", new String[] {String.valueOf(goalID)});
         if (result == -1) {
             return false;
         } else {

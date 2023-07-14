@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     DBHelper DB;
     private Spinner spinnerGoal;
+    String valueFromSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +54,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
 
+        Cursor cursor = DB.getGoals();
+        cursor.moveToFirst();
+        String name = cursor.getString(1);
+        valueFromSpinner = name;
 
-
-        updateHome("Default Goal");
+        updateHome(valueFromSpinner);
 //        // set the numbers to something - this might be unnecessary
 //        TextView t = (TextView) findViewById(R.id.currWordCount);
 //        String c = (String.valueOf(DB.getCum("Default Goal")));
@@ -130,10 +134,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // if the difference between days is negative
             if (Integer.parseInt(daysBetween) <= 0) {
                 // update finishDate in database
-                LocalDate base;
-                String mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, currentFinishDateDT));
+                LocalDate base; // current finish date
+                String mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, currentFinishDateDT)); // daysBetween
                 base = currentFinishDateDT;
-                while (Integer.parseInt(mid) <= 0) {
+                while (Integer.parseInt(mid) <= 0) { // repeat until current finish date is in the future
                     base = base.plusDays(period);
                     mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
                 }
@@ -143,20 +147,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 Log.d("new finish date", base.format(formatter));
                 DB.changeFinishDate(valueFromSpinner, base.format(formatter));
 
-                // reset log
+                // reset log if words have been added in this rotation
 
-                Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
+                if (c != "0") {
+                    Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
 
-                // check if inserted - might not work
-                if (checkInsertData==true) {
-                    Toast.makeText(MainActivity.this, "Word Count Updated", Toast.LENGTH_SHORT).show();
-                    Log.d("entryinserted", "success");
-                }else{
-                    Toast.makeText(MainActivity.this, "Goal Not Updated", Toast.LENGTH_SHORT).show();
-                    Log.d("entryinserted", "fail");
+                    // check if inserted - might not work
+                    if (checkInsertData==true) {
+                        Toast.makeText(MainActivity.this, "Word Count Reset", Toast.LENGTH_SHORT).show();
+                        Log.d("entryinserted", "success");
+                    }else{
+                        Toast.makeText(MainActivity.this, "Word Count Not Reset", Toast.LENGTH_SHORT).show();
+                        Log.d("entryinserted", "fail");
+                    }
                 }
 
-            } else {
+
+
+            } else { // occurs if word count doesn't need resetting
                 daysLeft.setText(daysBetween);
                 finishDate.setText(currentFinishDate);
             }

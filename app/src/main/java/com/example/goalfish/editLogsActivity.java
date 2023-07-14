@@ -44,7 +44,12 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         setContentView(R.layout.activity_edit_logs);
 
         DB = new DBHelper(this);
-        currentGoal = "Default Goal";
+
+        Cursor cursor = DB.getGoals();
+        cursor.moveToFirst();
+        String name = cursor.getString(1);
+        currentGoal = name;
+//        currentGoal = "Default Goal";
 
         // getting current goal
         Cursor res2 = DB.getGoals();
@@ -77,7 +82,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         Log.d("current goal", currentGoal);
         Cursor res = DB.getSpecificData(currentGoal);
         int rows = res.getCount() + 1;
-        String[][] data = new String[rows][3];
+        String[][] data = new String[rows][3]; // empty array no. entries down 3 across
         int j = 0;
         while(res.moveToNext()){
 //            data[i][0] = res.getString(1);
@@ -92,7 +97,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             data[j] = tempData;
             j += 1;
         }
-        String[][] newData = Arrays.copyOf(data, data.length - 1);
+        String[][] newData = Arrays.copyOf(data, data.length - 1); // removing last entry
         // add data to table
         tableView.setHeaderAdapter(new SimpleTableHeaderAdapter(this, headers));
         tableView.setDataAdapter(new SimpleTableDataAdapter(this, newData));
@@ -126,9 +131,11 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
 
 
                 // refresh page
-                Intent i = getIntent();
-                finish();
-                startActivity(i);
+//                Intent i = getIntent();
+//                finish();
+//                startActivity(i);
+                refreshLogs();
+
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -167,6 +174,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
                 Intent i = getIntent();
                 finish();
                 startActivity(i);
+
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -244,17 +252,20 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         alert.setView(layout); // Again this is a set method, not add
 
 
+        int goalId = DB.convertGoalToId((String) DB.getGoal(currentGoal).get("Goal Name"));
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 //                String newName = input.getText().toString();
                 Dictionary dict = new Hashtable();
+                dict.put("Goal ID", goalId);
                 dict.put("Goal Name", goalName.getText().toString());
                 dict.put("Goal", Integer.parseInt(wordGoal.getText().toString()));
                 dict.put("Period", Integer.parseInt(period.getText().toString()));
 //                dict.put("Start Date", );
                 dict.put("Reoccurring", reoccurring.isChecked());
 
+                Log.d("change goal", dict.toString());
                 Boolean checkChangeName = DB.changeGoalName(currentGoal, dict);
                 if (checkChangeName == true) {
                     Toast.makeText(editLogsActivity.this, "Goal Changed", Toast.LENGTH_LONG).show();
@@ -267,6 +278,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
                 Intent i = getIntent();
                 finish();
                 startActivity(i);
+
             }
         });
 
