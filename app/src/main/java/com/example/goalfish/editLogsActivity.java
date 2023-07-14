@@ -247,6 +247,20 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         reoccurring.setGravity(Gravity.LEFT);
         layout.addView(reoccurring);
 
+        final TextView defaultMessage = new TextView(this);
+        reoccurringMessage.setText("Default Goal: ");
+        layout.addView(defaultMessage);
+
+        final Switch isDefault = new Switch(this);
+        int checkValue2 = (int) DB.getGoal(currentGoal).get("isDefault");
+        if (checkValue2 == 0) {
+            isDefault.setChecked(false);
+        } else {
+            isDefault.setChecked(true);
+        }
+        isDefault.setGravity(Gravity.LEFT);
+        layout.addView(isDefault);
+
 //        final EditText wordGoal = new EditText(this);
 //        wordGoal.setHint("Words Goal");
 //        layout.addView(wordGoal);
@@ -266,6 +280,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
                 dict.put("Period", Integer.parseInt(period.getText().toString()));
 //                dict.put("Start Date", );
                 dict.put("Reoccurring", reoccurring.isChecked());
+                dict.put("isDefault", isDefault.isChecked());
 
                 Log.d("change goal", dict.toString());
                 Boolean checkChangeName = DB.changeGoalName(currentGoal, dict);

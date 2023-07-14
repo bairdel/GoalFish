@@ -24,7 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase DB) {
         // create tables
         DB.execSQL("create Table wordLogs(id INTEGER primary key AUTOINCREMENT NOT NULL, date TEXT NOT NULL, words INTEGER NOT NULL, cumulative INTEGER NOT NULL, goal_id INTEGER NOT NULL, totalCount INTEGER, FOREIGN KEY(goal_id) REFERENCES goalsTable(id))");
-        DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, endDate TEXT, reoccurring BOOL)");
+        DB.execSQL("create Table goalsTable(id INTEGER primary key AUTOINCREMENT, goalName TEXT UNIQUE, goal INTEGER, period INTEGER, endDate TEXT, reoccurring BOOL, isDefault BOOL)");
         // changed so startDate is effectively finishDate
 
         // get current date as string - might need to do something about making this work all the time
@@ -47,6 +47,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues2.put("period", 1);
         contentValues2.put("endDate", formattedDate);
         contentValues2.put("reoccurring", true);
+        contentValues2.put("isDefault", true);
         long r2 = DB.insert("goalsTable", null, contentValues2);
 
         // insertlogsdata won't work here - calls database recursively
@@ -91,8 +92,10 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     }
 
-    public Boolean insertGoalData(String goalName, int goal, int period, String startDate, boolean reoccurring){
+    public Boolean insertGoalData(String goalName, int goal, int period, String startDate, boolean reoccurring, boolean isDefault){
         // create a new goal, and create initial entry in wordLogs
+
+        SQLiteDatabase DB = this.getWritableDatabase();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
         LocalDate startDateDT = LocalDate.parse(startDate, formatter);
@@ -100,13 +103,18 @@ public class DBHelper extends SQLiteOpenHelper {
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String finishDate = finishDateTemp.format(myFormatObj);
 
-        SQLiteDatabase DB = this.getWritableDatabase();
+        if (isDefault == true){
+            resetDefaults();
+
+        }
+
         ContentValues contentValues = new ContentValues();
         contentValues.put("goalName", goalName);
         contentValues.put("goal", goal);
         contentValues.put("period", period);
         contentValues.put("endDate", finishDate);
         contentValues.put("reoccurring", reoccurring);
+        contentValues.put("isDefault", isDefault);
         long result = DB.insert("goalsTable", null, contentValues);
 
         // get current date as string
@@ -128,6 +136,20 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void resetDefaults(){
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = getGoals();
+        while(cursor.moveToNext()){ // set isDefault to 0
+
+            int goalID = (int) cursor.getInt(0);
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("isDefault", 0);
+
+            long result = DB.update("goalsTable", contentValues, "id=?", new String[] {String.valueOf(goalID)});
+        }
+
+    }
 
     public Boolean deleteWords(String goalName){
         // delete the last record entered into wordLogs based on a goal
@@ -228,6 +250,26 @@ public class DBHelper extends SQLiteOpenHelper {
         return c;
     }
 
+    public String getDefaultGoal(){
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = getGoals();
+        cursor.moveToFirst();
+        String name = cursor.getString(1);
+        cursor.close();
+
+
+//        try {
+//            cursor = DB.rawQuery("select * from goalsTable where isDefault=? ORDER BY id DESC LIMIT 1", new String[]{"0"});
+//            cursor.moveToFirst();
+//            name = cursor.getString(1);
+//            cursor.close();
+//        } finally {
+//
+//        };
+
+        return name;
+    }
+
     public Dictionary getGoal(String goalName) {
         // get all information about a goal given a goalName
         SQLiteDatabase DB = this.getWritableDatabase();
@@ -240,6 +282,7 @@ public class DBHelper extends SQLiteOpenHelper {
         dict.put("Period", cursor.getInt(3));
         dict.put("End Date", cursor.getString(4));
         dict.put("Reoccurring", cursor.getInt(5));
+        dict.put("isDefault", cursor.getInt(6));
 
         cursor.close();
         return dict;
@@ -283,7 +326,13 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put("goalName", (String) newValues.get("Goal Name"));
         contentValues.put("goal", (int) newValues.get("Goal"));
         contentValues.put("period", (int) newValues.get("Period"));
+        contentValues.put("reoccurring", (Boolean) newValues.get("Reoccurring"));
+        contentValues.put("isDefault", (Boolean) newValues.get("isDefault"));
 
+        if ((Boolean) (newValues.get("isDefault")) == true){
+            resetDefaults();
+
+        }
 
         long result = DB.update("goalsTable", contentValues, "id=?", new String[] {String.valueOf(goalID)});
         if (result == -1) {

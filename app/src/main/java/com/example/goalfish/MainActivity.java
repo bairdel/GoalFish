@@ -54,10 +54,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
 
-        Cursor cursor = DB.getGoals();
-        cursor.moveToFirst();
-        String name = cursor.getString(1);
-        valueFromSpinner = name;
+//        Cursor cursor = DB.getGoals();
+//        cursor.moveToFirst();
+//        String name = cursor.getString(1);
+//        valueFromSpinner = name;
+        valueFromSpinner = DB.getDefaultGoal();
 
         updateHome(valueFromSpinner);
 //        // set the numbers to something - this might be unnecessary

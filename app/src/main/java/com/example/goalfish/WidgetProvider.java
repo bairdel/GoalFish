@@ -27,16 +27,20 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
 
-            // get the goal name for this widget
-            SharedPreferences prefs = context.getSharedPreferences(SHARED_PRES, Context.MODE_PRIVATE);
-            String valueFromSpinner = prefs.getString(KEY_BUTTON_TEXT + appWidgetId, "Default Goal");
+
 
             DB = new DBHelper(context);
+            String defaultGoal = DB.getDefaultGoal();
+
+            // get the goal name for this widget
+            SharedPreferences prefs = context.getSharedPreferences(SHARED_PRES, Context.MODE_PRIVATE);
+            String valueFromSpinner = prefs.getString(KEY_BUTTON_TEXT + appWidgetId, defaultGoal);
+            Log.d("prefs value", valueFromSpinner);
 
             String c = (String.valueOf(DB.getCum(valueFromSpinner)));
             String c2 = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
 
-            String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+            String startDate = (String) (DB.getGoal(valueFromSpinner)).get("End Date");
             int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
             int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
 //            String result[] = DB.calculateDates(startDate, period, reoccurring);

@@ -75,7 +75,7 @@ public class GoalWidgetConfiguration extends AppCompatActivity implements Adapte
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
 
-        valueFromSpinner = "Default Goal";
+        valueFromSpinner = DB.getDefaultGoal();
     }
 
     public void confirmConfiguration(View v) {
@@ -89,7 +89,7 @@ public class GoalWidgetConfiguration extends AppCompatActivity implements Adapte
         String c = (String.valueOf(DB.getCum(valueFromSpinner)));
         String c2 = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
 
-        String startDate = (String) (DB.getGoal(valueFromSpinner)).get("Start Date");
+        String startDate = (String) (DB.getGoal(valueFromSpinner)).get("End Date");
         int period = (int) (DB.getGoal(valueFromSpinner)).get("Period");
         int reoccurring = (int) (DB.getGoal(valueFromSpinner)).get("Reoccurring");
 //        String result[] = DB.calculateDates(startDate, period, reoccurring);

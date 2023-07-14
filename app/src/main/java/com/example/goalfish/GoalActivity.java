@@ -89,6 +89,7 @@ public class GoalActivity extends AppCompatActivity {
         String goalName, startDate;
         int wordGoal, daysGoal;
         Boolean reoccurring;
+        Boolean isDefault;
 
         // get values submitted in form
         goalName = ((TextView)findViewById(R.id.goalName)).getText().toString();
@@ -96,10 +97,11 @@ public class GoalActivity extends AppCompatActivity {
         daysGoal = Integer.parseInt(((TextView)findViewById(R.id.daysGoal)).getText().toString());
         startDate = ((TextView)findViewById(R.id.startDate)).getText().toString();
         reoccurring = ((Switch)findViewById(R.id.reoccuring)).isChecked();
+        isDefault = ((Switch)findViewById(R.id.defaultswitch)).isChecked();
 
 
         // insert data into database - goalsTable
-        Boolean checkInsertData = DB.insertGoalData(goalName, wordGoal, daysGoal, startDate, reoccurring);
+        Boolean checkInsertData = DB.insertGoalData(goalName, wordGoal, daysGoal, startDate, reoccurring, isDefault);
 
         // check if insert worked - don't know if this works
         if (checkInsertData==true) {
