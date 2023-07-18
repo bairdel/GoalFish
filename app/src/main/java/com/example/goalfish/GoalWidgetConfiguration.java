@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Dictionary;
 
 public class GoalWidgetConfiguration extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     public static final String SHARED_PRES = "prefs";
@@ -58,22 +59,16 @@ public class GoalWidgetConfiguration extends AppCompatActivity implements Adapte
 
         //editTextButton = findViewById(R.id.configureEntry);
 
-        // create the dropdown with the created goals
-        Cursor res = DB.getGoals();
-        int rows = res.getCount() + 1;
-        String[] goalNames1 = new String[rows];
-        int i = 0;
-        while(res.moveToNext()){
-            goalNames1[i] = res.getString(1);
-            i += 1;
-        }
+        Dictionary goalsDictionary = DB.getGoals();
+        String[] goalNames = (String[]) goalsDictionary.get("goalNames");
+        int defaultSpinnerIndex = (int) goalsDictionary.get("defaultSpinnerIndex");
 
-        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1);
         spinnerGoal = findViewById(R.id.configureEntry);
         spinnerGoal.setOnItemSelectedListener(this);
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
+        spinnerGoal.setSelection(defaultSpinnerIndex);
 
         valueFromSpinner = DB.getDefaultGoal();
     }
@@ -133,9 +128,8 @@ public class GoalWidgetConfiguration extends AppCompatActivity implements Adapte
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         // default to most recent goal for values
-        Cursor cursor = DB.getGoals();
-        cursor.moveToFirst();
-        valueFromSpinner = cursor.getString(1);    }
+
+        valueFromSpinner = DB.getDefaultGoal();    }
 }
 
 

@@ -45,29 +45,20 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
 
         DB = new DBHelper(this);
 
-        Cursor cursor = DB.getGoals();
-        cursor.moveToFirst();
-        String name = cursor.getString(1);
-        currentGoal = name;
+        currentGoal = DB.getDefaultGoal();
 //        currentGoal = "Default Goal";
 
-        // getting current goal
-        Cursor res2 = DB.getGoals();
-        int rows2 = res2.getCount() + 1; // number of rows to get
-        String[] goalNames1 = new String[rows2]; // new string array of length items found
-        int i = 0;
-        while(res2.moveToNext()){
-            goalNames1[i] = res2.getString(1);
-            i += 1;
-        }
-        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1); // last item seems to always end up as null
-//        Log.d("dataArray", Arrays.toString(goalNames));
+        Dictionary goalsDictionary = DB.getGoals();
+        String[] goalNames = (String[]) goalsDictionary.get("goalNames");
+        int defaultSpinnerIndex = (int) goalsDictionary.get("defaultSpinnerIndex");
 
         spinnerGoal = findViewById(R.id.logsDropdown);
         spinnerGoal.setOnItemSelectedListener(this);
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
+        spinnerGoal.setSelection(defaultSpinnerIndex);
+
 
         refreshLogs();
     }
@@ -233,9 +224,12 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         period.setInputType(InputType.TYPE_CLASS_NUMBER);
         layout.addView(period);
 
+        LinearLayout layoutReoccurring = new LinearLayout(this);
+        layoutReoccurring.setOrientation(LinearLayout.HORIZONTAL);
+
         final TextView reoccurringMessage = new TextView(this);
         reoccurringMessage.setText("Reoccurring: ");
-        layout.addView(reoccurringMessage);
+        layoutReoccurring.addView(reoccurringMessage);
 
         final Switch reoccurring = new Switch(this);
         int checkValue = (int) DB.getGoal(currentGoal).get("Reoccurring");
@@ -244,12 +238,17 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
         } else {
             reoccurring.setChecked(true);
         }
-        reoccurring.setGravity(Gravity.LEFT);
-        layout.addView(reoccurring);
+        //reoccurring.setGravity(Gravity.LEFT);
+        layoutReoccurring.addView(reoccurring);
+
+        layout.addView(layoutReoccurring);
+
+        LinearLayout layoutDefault = new LinearLayout(this);
+        layoutDefault.setOrientation(LinearLayout.HORIZONTAL);
 
         final TextView defaultMessage = new TextView(this);
-        reoccurringMessage.setText("Default Goal: ");
-        layout.addView(defaultMessage);
+        defaultMessage.setText("Default Goal: ");
+        layoutDefault.addView(defaultMessage);
 
         final Switch isDefault = new Switch(this);
         int checkValue2 = (int) DB.getGoal(currentGoal).get("isDefault");
@@ -259,7 +258,10 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             isDefault.setChecked(true);
         }
         isDefault.setGravity(Gravity.LEFT);
-        layout.addView(isDefault);
+        layoutDefault.addView(isDefault);
+
+        layout.addView(layoutDefault);
+
 
 //        final EditText wordGoal = new EditText(this);
 //        wordGoal.setHint("Words Goal");
@@ -325,10 +327,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         if (adapterView.getId() == R.id.logsDropdown) {
-            Cursor cursor = DB.getGoals();
-            cursor.moveToFirst();
-            String name = cursor.getString(1);
-            currentGoal = name;
+            currentGoal = DB.getDefaultGoal();
             refreshLogs();
         }
     }

@@ -31,6 +31,7 @@ import org.w3c.dom.Text;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Dictionary;
 
 public class AddWordsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -45,22 +46,17 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
 
         DB = new DBHelper(this);
 
-        // create the dropdown menu with the list of goals
-        Cursor res = DB.getGoals();
-        int rows = res.getCount() + 1;
-        String[] goalNames1 = new String[rows];
-        int i = 0;
-        while(res.moveToNext()){ // add goals to a list
-            goalNames1[i] = res.getString(1);
-            i += 1;
-        }
-        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1); // last item is null for some reason
+
+        Dictionary goalsDictionary = DB.getGoals();
+        String[] goalNames = (String[]) goalsDictionary.get("goalNames");
+        int defaultSpinnerIndex = (int) goalsDictionary.get("defaultSpinnerIndex");
 
         spinnerGoal = findViewById(R.id.goalSelectorWords);
         spinnerGoal.setOnItemSelectedListener(this);
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
+        spinnerGoal.setSelection(defaultSpinnerIndex);
 
 
     }
@@ -183,11 +179,8 @@ public class AddWordsActivity extends AppCompatActivity implements AdapterView.O
     public void onNothingSelected(AdapterView<?> adapterView) {
         // default to most recently added goal if user does not select anything
         if (adapterView.getId() == R.id.goalSelectorWords) {
-            Cursor cursor = DB.getGoals();
-            cursor.moveToFirst();
-            String name = cursor.getString(1);
-            Log.d("default selection", name);
-            currentGoal = name;
+            currentGoal = DB.getDefaultGoal();
+
         }
     }
 }

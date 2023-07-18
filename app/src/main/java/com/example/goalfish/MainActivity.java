@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -40,28 +41,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // initialise database for changing word count and word goal on homepage
         DB = new DBHelper(this);
 
-        // create the dropdown with the created goals
-        Cursor res = DB.getGoals();
-        int rows = res.getCount() + 1;
-        String[] goalNames1 = new String[rows];
-        int i = 0;
-        while(res.moveToNext()){
-            goalNames1[i] = res.getString(1);
-            i += 1;
-        }
+//        int defaultSpinnerIndex = 0;
+        valueFromSpinner = DB.getDefaultGoal();
 
-        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1);
+
+        // create the dropdown with the created goals
+//        Cursor res = DB.getGoals();
+//        int rows = res.getCount() + 1;
+//        String[] goalNames1 = new String[rows];
+//        int i = 0;
+//        while(res.moveToNext()){
+//            goalNames1[i] = res.getString(1);
+//            Log.d("ifDefault", res.getString(6));
+//            if (res.getInt(6) == 1){
+//                defaultSpinnerIndex = i;
+//                Log.d("defaultSpinnerIndex", String.valueOf(defaultSpinnerIndex));
+//            }
+//            i += 1;
+//        }
+//
+//
+//        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1);
+
+        Dictionary goalsDictionary = DB.getGoals();
+        String[] goalNames = (String[]) goalsDictionary.get("goalNames");
+        int defaultSpinnerIndex = (int) goalsDictionary.get("defaultSpinnerIndex");
+
         spinnerGoal = findViewById(R.id.goalSelector);
         spinnerGoal.setOnItemSelectedListener(this);
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, goalNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGoal.setAdapter(adapter);
+        spinnerGoal.setSelection(defaultSpinnerIndex);
+
 
 //        Cursor cursor = DB.getGoals();
 //        cursor.moveToFirst();
 //        String name = cursor.getString(1);
 //        valueFromSpinner = name;
-        valueFromSpinner = DB.getDefaultGoal();
 
         updateHome(valueFromSpinner);
 //        // set the numbers to something - this might be unnecessary
@@ -255,11 +272,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         // default to most recent goal for values
-        Cursor cursor = DB.getGoals();
-        cursor.moveToFirst();
-        String name = cursor.getString(1);
+//        Cursor cursor = DB.getGoals();
+//        cursor.moveToFirst();
+//        String name = cursor.getString(1);
 
-        //updateHome(name);
+        updateHome(DB.getDefaultGoal());
 
         // refresh page
 //        Intent i = getIntent();

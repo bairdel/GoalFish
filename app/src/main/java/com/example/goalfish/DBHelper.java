@@ -10,6 +10,7 @@ import android.util.Log;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -67,7 +68,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-
+    // updating db stuff - daily
     public Boolean insertLogsData(String date, int words, int cumulative, String goalName){
         SQLiteDatabase DB = this.getWritableDatabase();
 
@@ -138,7 +139,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void resetDefaults(){
         SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = getGoals();
+        Cursor cursor = DB.rawQuery("Select * from goalsTable ORDER BY id DESC", null);
         while(cursor.moveToNext()){ // set isDefault to 0
 
             int goalID = (int) cursor.getInt(0);
@@ -151,77 +152,33 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public Boolean deleteWords(String goalName){
-        // delete the last record entered into wordLogs based on a goal
+    public void changeFinishDate(String goalName, String newDate) {
+        // change the limitReached boolean
         SQLiteDatabase DB = this.getWritableDatabase();
 
-        // check there are more than one entries before deleting
-        Cursor cursor1 = DB.rawQuery("Select * from wordLogs where goal_id=?", new String[] {String.valueOf(convertGoalToId(goalName))});
-        int logsNum = cursor1.getCount();
-        cursor1.close();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("endDate", newDate);
 
-        // query most recent entry with specified goal
-        Cursor cursor = DB.rawQuery("Select * from wordLogs where goal_id=? ORDER BY id DESC LIMIT 1", new String[] {String.valueOf(convertGoalToId(goalName))});
-        cursor.moveToFirst();
-        int id = cursor.getInt(0); // gets id of record so we know what to delete
-        cursor.close();
-        if (logsNum != 1) { // don't delete first value
-            long result = DB.delete("wordLogs", "id=?", new String[]{String.valueOf(id)});
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
-        }else{
-            return false;
-        }}
-
-    public Boolean deleteGoal(String goalName){
-        // delete the last record entered into goalsTable based on a goal
-        SQLiteDatabase DB = this.getWritableDatabase();
-
-        // check there are more than one entries before deleting
-        Cursor cursor1 = DB.rawQuery("Select * from goalsTable", null);
-        int logsNum = cursor1.getCount();
-        cursor1.close();
-
-        // query most recent entry with specified goal
-        Cursor cursor = DB.rawQuery("Select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
-        cursor.moveToFirst();
-        int id = cursor.getInt(0); // gets id of record so we know what to delete
-        cursor.close();
-        if (logsNum != 1) { // don't delete first value
-            long result = DB.delete("goalsTable", "id=?", new String[]{String.valueOf(id)});
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
-        }else{
-            return false;
-        }}
-
-
-    public Cursor getData () {
-        // return a cursor of all records in wordLogs descending, includes null record at end
-        SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = DB.rawQuery("Select * from wordLogs ORDER BY id DESC", null);
-        return cursor;
+        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
     }
 
-    public Cursor getSpecificData (String goalName) {
-        // return a cursor of all records in wordLogs descending, includes null record at end, specific to a goal
+    // how the main program gets data from the db
+    public Dictionary getGoal(String goalName) {
+        // get all information about a goal given a goalName
         SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = DB.rawQuery("Select * from wordLogs where goal_id=? ORDER BY id DESC", new String[] {String.valueOf(convertGoalToId(goalName))});
-        return cursor;
-    }
+        Cursor cursor = DB.rawQuery("select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
+        cursor.moveToFirst();
 
-    public Cursor getGoals () {
-        // return a cursor of all records in goalsTable descending, includes null record at end
-        SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = DB.rawQuery("Select * from goalsTable ORDER BY id DESC", null);
+        Dictionary dict = new Hashtable();
+        dict.put("Goal Name", cursor.getString(1));
+        dict.put("Goal", cursor.getInt(2));
+        dict.put("Period", cursor.getInt(3));
+        dict.put("End Date", cursor.getString(4));
+        dict.put("Reoccurring", cursor.getInt(5));
+        dict.put("isDefault", cursor.getInt(6));
 
-        return cursor;
+        cursor.close();
+        return dict;
     }
 
     public int getCum(String goalName) {
@@ -250,19 +207,48 @@ public class DBHelper extends SQLiteOpenHelper {
         return c;
     }
 
+    public Dictionary getGoals () {
+        // return a cursor of all records in goalsTable descending, includes null record at end
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = DB.rawQuery("Select * from goalsTable ORDER BY id DESC", null);
+
+        int defaultSpinnerIndex = 0;
+        int rows = cursor.getCount() + 1;
+        String[] goalNames1 = new String[rows];
+        int i = 0;
+        while(cursor.moveToNext()){
+            goalNames1[i] = cursor.getString(1);
+            Log.d("ifDefault", cursor.getString(6));
+            if (cursor.getInt(6) == 1){
+                defaultSpinnerIndex = i;
+                Log.d("defaultSpinnerIndex", String.valueOf(defaultSpinnerIndex));
+            }
+            i += 1;
+        }
+
+
+        String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1);
+
+        Dictionary dict = new Hashtable();;
+        dict.put("goalNames", goalNames);
+        dict.put("defaultSpinnerIndex", defaultSpinnerIndex);
+
+        return dict;
+    }
+
     public String getDefaultGoal(){
         SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = getGoals();
+        Cursor cursor = DB.rawQuery("Select * from goalsTable ORDER BY id DESC", null);
         cursor.moveToFirst();
         String name = cursor.getString(1);
         cursor.close();
 
 
 //        try {
-//            cursor = DB.rawQuery("select * from goalsTable where isDefault=? ORDER BY id DESC LIMIT 1", new String[]{"0"});
-//            cursor.moveToFirst();
-//            name = cursor.getString(1);
-//            cursor.close();
+        cursor = DB.rawQuery("select * from goalsTable where isDefault=? ORDER BY id DESC LIMIT 1", new String[]{"0"});
+        cursor.moveToFirst();
+        name = cursor.getString(1);
+        cursor.close();
 //        } finally {
 //
 //        };
@@ -270,51 +256,38 @@ public class DBHelper extends SQLiteOpenHelper {
         return name;
     }
 
-    public Dictionary getGoal(String goalName) {
-        // get all information about a goal given a goalName
+    // logs interactions and user control over database
+    public Cursor getSpecificData (String goalName) {
+        // return a cursor of all records in wordLogs descending, includes null record at end, specific to a goal
         SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = DB.rawQuery("select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
-        cursor.moveToFirst();
-
-        Dictionary dict = new Hashtable();
-        dict.put("Goal Name", cursor.getString(1));
-        dict.put("Goal", cursor.getInt(2));
-        dict.put("Period", cursor.getInt(3));
-        dict.put("End Date", cursor.getString(4));
-        dict.put("Reoccurring", cursor.getInt(5));
-        dict.put("isDefault", cursor.getInt(6));
-
-        cursor.close();
-        return dict;
+        Cursor cursor = DB.rawQuery("Select * from wordLogs where goal_id=? ORDER BY id DESC", new String[] {String.valueOf(convertGoalToId(goalName))});
+        return cursor;
     }
 
-    public int getLimitReached(String goalName) {
-        // return the value of limitReached for a goal to see if a blank entry has already been added
+    public Boolean deleteWords(String goalName){
+        // delete the last record entered into wordLogs based on a goal
         SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = DB.rawQuery("select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
+
+        // check there are more than one entries before deleting
+        Cursor cursor1 = DB.rawQuery("Select * from wordLogs where goal_id=?", new String[] {String.valueOf(convertGoalToId(goalName))});
+        int logsNum = cursor1.getCount();
+        cursor1.close();
+
+        // query most recent entry with specified goal
+        Cursor cursor = DB.rawQuery("Select * from wordLogs where goal_id=? ORDER BY id DESC LIMIT 1", new String[] {String.valueOf(convertGoalToId(goalName))});
         cursor.moveToFirst();
-
-        int c = cursor.getInt(6);
-        //Log.d("cumulative", String.valueOf(c));
-        //int cum = Integer.parseInt(c);
+        int id = cursor.getInt(0); // gets id of record so we know what to delete
         cursor.close();
-        return c;
-    }
-
-//    public boolean setLimitReached(String goalName, boolean limitReached) {
-//        // change the limitReached boolean
-//        SQLiteDatabase DB = this.getWritableDatabase();
-//
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put("limitReached", limitReached);
-//
-//        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
-//        if (result == -1) {
-//            return false;
-//        } else {
-//            return true;
-//        }
-//    }
+        if (logsNum != 1) { // don't delete first value
+            long result = DB.delete("wordLogs", "id=?", new String[]{String.valueOf(id)});
+            if (result == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }else{
+            return false;
+        }}
 
     public boolean changeGoalName(String goalName, Dictionary newValues) {
         //
@@ -353,15 +326,72 @@ public class DBHelper extends SQLiteOpenHelper {
         } return false;
     }
 
-    public void changeFinishDate(String goalName, String newDate) {
-        // change the limitReached boolean
+    public Boolean deleteGoal(String goalName){
+        // delete the last record entered into goalsTable based on a goal
         SQLiteDatabase DB = this.getWritableDatabase();
 
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("endDate", newDate);
+        // check there are more than one entries before deleting
+        Cursor cursor1 = DB.rawQuery("Select * from goalsTable", null);
+        int logsNum = cursor1.getCount();
+        cursor1.close();
 
-        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
+        // query most recent entry with specified goal
+        Cursor cursor = DB.rawQuery("Select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
+        cursor.moveToFirst();
+        int id = cursor.getInt(0); // gets id of record so we know what to delete
+        cursor.close();
+        if (logsNum != 1) { // don't delete first value
+            long result = DB.delete("goalsTable", "id=?", new String[]{String.valueOf(id)});
+            if (result == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }else{
+            return false;
+        }}
+
+
+
+    ///////////////////////////////////////
+
+    public Cursor getData () {
+        // return a cursor of all records in wordLogs descending, includes null record at end
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = DB.rawQuery("Select * from wordLogs ORDER BY id DESC", null);
+        return cursor;
     }
+
+    public int getLimitReached(String goalName) {
+        // return the value of limitReached for a goal to see if a blank entry has already been added
+        SQLiteDatabase DB = this.getWritableDatabase();
+        Cursor cursor = DB.rawQuery("select * from goalsTable where goalName=? ORDER BY id DESC LIMIT 1", new String[] {goalName});
+        cursor.moveToFirst();
+
+        int c = cursor.getInt(6);
+        //Log.d("cumulative", String.valueOf(c));
+        //int cum = Integer.parseInt(c);
+        cursor.close();
+        return c;
+    }
+
+//    public boolean setLimitReached(String goalName, boolean limitReached) {
+//        // change the limitReached boolean
+//        SQLiteDatabase DB = this.getWritableDatabase();
+//
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put("limitReached", limitReached);
+//
+//        long result = DB.update("goalsTable", contentValues, "goalName=?", new String[] {goalName});
+//        if (result == -1) {
+//            return false;
+//        } else {
+//            return true;
+//        }
+//    }
+
+
+
 
 //    public String[] calculateDates(String oldfinishDate, int period, int reoccurring){
 //
