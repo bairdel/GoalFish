@@ -2,6 +2,8 @@ package com.example.goalfish;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.RemoteViews;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -142,15 +145,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     base = base.plusDays(period);
                     mid = String.valueOf(ChronoUnit.DAYS.between(currentDate, base));
                 }
-                daysLeft.setText(mid);
-                finishDate.setText(base.format(formatter));
 
-                Log.d("new finish date", base.format(formatter));
-                DB.changeFinishDate(valueFromSpinner, base.format(formatter));
+                daysBetween = mid;
+                currentFinishDate = base.format(formatter);
+
+                daysLeft.setText(daysBetween);
+                finishDate.setText(currentFinishDate);
+
+                Log.d("new finish date", currentFinishDate);
+                DB.changeFinishDate(valueFromSpinner, currentFinishDate);
 
                 // reset log if words have been added in this rotation
 
-                if (c != "0") {
+                if (Integer.parseInt(c) != 0) {
                     Boolean checkInsertData = DB.insertLogsData(formattedDate, 0, 0, valueFromSpinner);
 
                     // check if inserted - might not work
@@ -165,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
 
+
+
             } else { // occurs if word count doesn't need resetting
                 daysLeft.setText(daysBetween);
                 finishDate.setText(currentFinishDate);
@@ -176,6 +185,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             daysLeft.setText(daysBetween);
             finishDate.setText(currentFinishDate);
         }
+
+        // update widget
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        RemoteViews remoteViews = new RemoteViews(this.getPackageName(), R.layout.progress_widget);
+        String newCum = (String.valueOf(DB.getCum(valueFromSpinner)));
+        String newGoal = (String.valueOf(DB.getGoal(valueFromSpinner).get("Goal")));
+        remoteViews.setTextViewText(R.id.widgetWord, c);
+        remoteViews.setProgressBar(R.id.progressBar, Integer.parseInt(newGoal), Integer.parseInt(newCum), false);
+        remoteViews.setTextViewText(R.id.widgetDaysLeft, daysBetween);
+        final int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, WidgetProvider.class));
+        appWidgetManager.partiallyUpdateAppWidget(appWidgetIds, remoteViews);
 
         //String result[] = DB.calculateDates(startDate, period, reoccurring);
 

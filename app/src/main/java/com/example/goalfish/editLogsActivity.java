@@ -61,7 +61,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             i += 1;
         }
         String[] goalNames = Arrays.copyOf(goalNames1, goalNames1.length - 1); // last item seems to always end up as null
-        Log.d("dataArray", Arrays.toString(goalNames));
+//        Log.d("dataArray", Arrays.toString(goalNames));
 
         spinnerGoal = findViewById(R.id.logsDropdown);
         spinnerGoal.setOnItemSelectedListener(this);
