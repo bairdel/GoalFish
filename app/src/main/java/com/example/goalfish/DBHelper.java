@@ -238,20 +238,22 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public String getDefaultGoal(){
         SQLiteDatabase DB = this.getWritableDatabase();
-        Cursor cursor = DB.rawQuery("Select * from goalsTable ORDER BY id DESC", null);
-        cursor.moveToFirst();
-        String name = cursor.getString(1);
+        String name = null;
+
+
+        Cursor cursor = DB.rawQuery("select * from goalsTable where isDefault=? ORDER BY id DESC LIMIT 1", new String[]{"0"});
+        if (cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            name = cursor.getString(1);
+        } else if (cursor.getCount() == 0){
+            Cursor res = DB.rawQuery("Select * from goalsTable ORDER BY id DESC", null);
+            res.moveToFirst();
+            name = res.getString(1);
+            res.close();
+        }
         cursor.close();
 
 
-//        try {
-        cursor = DB.rawQuery("select * from goalsTable where isDefault=? ORDER BY id DESC LIMIT 1", new String[]{"0"});
-        cursor.moveToFirst();
-        name = cursor.getString(1);
-        cursor.close();
-//        } finally {
-//
-//        };
 
         return name;
     }

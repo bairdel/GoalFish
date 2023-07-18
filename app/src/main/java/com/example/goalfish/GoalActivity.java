@@ -88,27 +88,34 @@ public class GoalActivity extends AppCompatActivity {
 
         String goalName, startDate;
         int wordGoal, daysGoal;
+        String strwordGoal, strdaysGoal;
         Boolean reoccurring;
         Boolean isDefault;
 
         // get values submitted in form
         goalName = ((TextView)findViewById(R.id.goalName)).getText().toString();
-        wordGoal = Integer.parseInt(((TextView)findViewById(R.id.wordGoal)).getText().toString());
-        daysGoal = Integer.parseInt(((TextView)findViewById(R.id.daysGoal)).getText().toString());
+        strwordGoal = ((TextView)findViewById(R.id.wordGoal)).getText().toString();
+        strdaysGoal = ((TextView)findViewById(R.id.daysGoal)).getText().toString();
         startDate = ((TextView)findViewById(R.id.startDate)).getText().toString();
         reoccurring = ((Switch)findViewById(R.id.reoccuring)).isChecked();
         isDefault = ((Switch)findViewById(R.id.defaultswitch)).isChecked();
 
+        if ((!goalName.equals("")) && (!strwordGoal.equals("")) && (!strdaysGoal.equals("")) && (!startDate.equals(""))) {
+            // insert data into database - goalsTable
+            wordGoal = Integer.parseInt(strwordGoal);
+            daysGoal = Integer.parseInt(strdaysGoal);
+            Boolean checkInsertData = DB.insertGoalData(goalName, wordGoal, daysGoal, startDate, reoccurring, isDefault);
 
-        // insert data into database - goalsTable
-        Boolean checkInsertData = DB.insertGoalData(goalName, wordGoal, daysGoal, startDate, reoccurring, isDefault);
-
-        // check if insert worked - don't know if this works
-        if (checkInsertData==true) {
-            Toast.makeText(GoalActivity.this, "New Goal Created", Toast.LENGTH_LONG).show();
-            Log.d("entryinserted", "success");
-        }else{
-            Toast.makeText(GoalActivity.this, "Goal Already Exists", Toast.LENGTH_LONG).show();
+            // check if insert worked - don't know if this works
+            if (checkInsertData == true) {
+                Toast.makeText(GoalActivity.this, "New Goal Created", Toast.LENGTH_LONG).show();
+                Log.d("entryinserted", "success");
+            } else {
+                Toast.makeText(GoalActivity.this, "Goal Already Exists", Toast.LENGTH_LONG).show();
+                Log.d("entryinserted", "fail");
+            }
+        } else {
+            Toast.makeText(GoalActivity.this, "Goal Not Created", Toast.LENGTH_LONG).show();
             Log.d("entryinserted", "fail");
         }
 

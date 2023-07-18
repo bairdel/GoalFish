@@ -84,7 +84,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
             tempData[0] = (res.getString(1));
             tempData[1] = (res.getString(2));
             tempData[2] = (res.getString(3));
-            Log.d("dataArray", Arrays.toString(tempData));
+//            Log.d("dataArray", Arrays.toString(tempData));
             data[j] = tempData;
             j += 1;
         }
@@ -193,7 +193,7 @@ public class editLogsActivity extends AppCompatActivity implements AdapterView.O
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(20,20,20, 20);
+        layout.setPadding(60,20,60, 20);
 
         final TextView goalNameMessage = new TextView(this);
         goalNameMessage.setText("Goal Name: ");
